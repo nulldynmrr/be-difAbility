@@ -11,6 +11,8 @@ import com.ippl.difability.repository.UserRepository;
 
 @Configuration
 public class AdminInitializer {
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
     @SuppressWarnings("unused")
     @Bean
     CommandLineRunner initAdmin(UserRepository userRepository) {
@@ -18,13 +20,13 @@ public class AdminInitializer {
             if (userRepository.findByEmail("admin@ippl.com").isEmpty()) {
                 Admin admin = new Admin();
                 admin.setEmail("admin@ippl.com");
-                admin.setPassword(new BCryptPasswordEncoder().encode("Admin1234!"));
+                admin.setPassword(encoder.encode("Admin1234"));
                 admin.setRole(Role.ADMIN);
-                admin.setTotpSecret("JBSWY3DPEHPK3PXP");
+                admin.setTotpSecret("abcd1234");
                 userRepository.save(admin);
-                System.out.println("email   :admin@ippl.com");
-                System.out.println("password:Admin1234!");
-                System.out.println("TOTP    :JBSWY3DPEHPK3PXP");
+                System.out.println("email   : admin@ippl.com");
+                System.out.println("password: Admin1234!");
+                System.out.println("TOTP    : abcd1234");
             }
         };
     }

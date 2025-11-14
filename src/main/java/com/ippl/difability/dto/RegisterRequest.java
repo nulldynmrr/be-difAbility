@@ -18,6 +18,6 @@ public class RegisterRequest {
             message = "Password must be at least 8 chars, 1 uppercase, 1 number")
     private String password;
 
-    @NotBlank
+    @NotBlank(message = "Role cannot be blank")
     private String role;
 }
