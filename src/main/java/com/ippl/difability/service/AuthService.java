@@ -30,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private final ActivityLogService logService;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public AuthResponse register(RegisterRequest req){
@@ -45,6 +46,10 @@ public class AuthService {
         user.setPassword(encoder.encode(req.getPassword()));
         user.setRole(role);
         userRepository.save(user);
+
+        logService.log(user.getEmail(), user.getRole().name(), "REGISTER",
+        user.getRole() + " registered a new account.");
+
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
         return new AuthResponse(token, user.getRole().name());
     }
@@ -65,6 +70,9 @@ public class AuthService {
                 ? hr.getUsername()
                 : user.getEmail();
 
+        logService.log(user.getEmail(), user.getRole().name(), "LOGIN",
+        user.getRole() + " Logged in.");
+
         String token = jwtUtil.generateToken(identifier, user.getRole().name());
         return new AuthResponse(token, user.getRole().name());
     }
@@ -79,6 +87,9 @@ public class AuthService {
 
         if(!verifyOtp("abcd1234", req.getOtp()))
             throw new RuntimeException("Wrong OTP code");
+
+        logService.log(admin.getEmail(), "ADMIN", "LOGIN_ADMIN",
+        "Admin logged in with OTP.");
 
         String token = jwtUtil.generateToken(admin.getEmail(), admin.getRole().name());
         return new AuthResponse(token, admin.getRole().name());
@@ -113,6 +124,9 @@ public class AuthService {
         hr.setRole(Role.HUMAN_RESOURCE);
         hr.setCompany(company);
         userRepository.save(hr);
+
+        logService.log(company.getEmail(), company.getRole().name(), "GENERATE_HR",
+        "Generated HR account: " + username);
 
         return new HrAccountResponse(username, rawPassword, hr.getRole().name());
     }

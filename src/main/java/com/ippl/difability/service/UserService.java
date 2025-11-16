@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final ActivityLogService logService;
 
     @Transactional
     public User updateProfile(String identifier, ProfileUpdateRequest req){
@@ -36,6 +37,10 @@ public class UserService {
             seeker.setCvFilePath(req.getCvFilePath());
             seeker.setCertifFilePaths(req.getCertifFilePaths());
             seeker.setProfileCompleted(true);
+
+            logService.log(user.getEmail(), user.getRole().name(), "UPDATE_PROFILE",
+            user.getRole() + " updated their profile.");
+
             return userRepository.save(seeker);
 
         } else if(user.getRole() == Role.COMPANY){
@@ -47,6 +52,10 @@ public class UserService {
             company.setWebsiteUrl(req.getWebsiteUrl());
             company.setLogoImgPath(req.getLogoImgPath());
             company.setProfileCompleted(true);
+
+            logService.log(user.getEmail(), user.getRole().name(), "UPDATE_PROFILE",
+            user.getRole() + " updated their profile.");
+
             return userRepository.save(company);
         }
         throw new RuntimeException("Cannot update profile for this role");
