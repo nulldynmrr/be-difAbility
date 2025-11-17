@@ -21,7 +21,7 @@ public class ActivityLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String actorEmail;
+    private String actorIdentifier;
     private String actorRole; 
     private String action;      
     private String description;

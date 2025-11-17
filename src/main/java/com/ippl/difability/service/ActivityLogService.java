@@ -5,16 +5,18 @@ import org.springframework.stereotype.Service;
 import com.ippl.difability.entity.ActivityLog;
 import com.ippl.difability.repository.ActivityLogRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ActivityLogService {
     private final ActivityLogRepository logRepository;
 
-    public void log(String actorEmail, String actorRole, String action, String description) {
+    public void log(String actorIdentifier, String actorRole, String action, String description) {
         ActivityLog log = new ActivityLog();
-        log.setActorEmail(actorEmail);
+        log.setActorIdentifier(actorIdentifier);
         log.setActorRole(actorRole);
         log.setAction(action);
         log.setDescription(description);
