@@ -1,11 +1,9 @@
 package com.ippl.difability.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Value;
 
-@Getter
-@AllArgsConstructor
+@Value
 public class AuthResponse {
-    private final String token;
-    private final String role;
+    private String token;
+    private String role;
 }

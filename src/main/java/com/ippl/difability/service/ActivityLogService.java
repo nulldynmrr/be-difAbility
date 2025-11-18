@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional
 public class ActivityLogService {
-    private final ActivityLogRepository logRepository;
+    private final ActivityLogRepository activityLogRepository;
 
     public void log(String actorIdentifier, String actorRole, String action, String description) {
         ActivityLog log = new ActivityLog();
@@ -20,7 +20,7 @@ public class ActivityLogService {
         log.setActorRole(actorRole);
         log.setAction(action);
         log.setDescription(description);
-        logRepository.save(log);
+        activityLogRepository.save(log);
     }
 }
  

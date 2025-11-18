@@ -29,12 +29,14 @@ public abstract class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String email;
+    @Column(unique = true, nullable = false)
+    private String identifier;
 
+    @Column(nullable = false)
     private String password;
-
+    
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
     private boolean profileCompleted = false;

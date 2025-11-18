@@ -1,7 +1,9 @@
 package com.ippl.difability.service;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ippl.difability.dto.AdminLoginRequest;
@@ -15,6 +17,9 @@ import com.ippl.difability.entity.HumanResource;
 import com.ippl.difability.entity.JobSeeker;
 import com.ippl.difability.entity.User;
 import com.ippl.difability.enums.Role;
+import com.ippl.difability.exception.ForbiddenException;
+import com.ippl.difability.exception.InvalidCredentialsException;
+import com.ippl.difability.exception.ResourceConflictException;
 import com.ippl.difability.repository.UserRepository;
 import com.ippl.difability.security.JwtUtil;
 
@@ -23,111 +28,139 @@ import dev.samstevens.totp.code.DefaultCodeGenerator;
 import dev.samstevens.totp.code.DefaultCodeVerifier;
 import dev.samstevens.totp.code.HashingAlgorithm;
 import dev.samstevens.totp.time.SystemTimeProvider;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuthService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
-    private final ActivityLogService logService;
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final ActivityLogService activityLogService;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthResponse register(RegisterRequest req){
-        Role role = Role.valueOf(req.getRole().toUpperCase());
-        if(role != Role.COMPANY && role != Role.JOB_SEEKER)
-            throw new RuntimeException("Only COMPANY or JOB_SEEKER can register");
+    @SuppressWarnings("null")
+    public AuthResponse register(RegisterRequest request){
+        if(userRepository.existsByIdentifier(request.getEmail())){
+            throw new ResourceConflictException("Email already exists");
+        }
 
-        if(userRepository.existsByEmail(req.getEmail()))
-            throw new RuntimeException("Email already exists");
+        Role role = request.getRole();
+        User user = switch (role){
+            case JOB_SEEKER -> new JobSeeker();
+            case COMPANY -> new Company();
+            default -> throw new ForbiddenException("Registration not allowed.");
+        };
 
-        User user = (role == Role.COMPANY) ? new Company() : new JobSeeker();
-        user.setEmail(req.getEmail());
-        user.setPassword(encoder.encode(req.getPassword()));
+        user.setIdentifier(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(role);
         userRepository.save(user);
+        
+        String email = Objects.requireNonNull(user.getIdentifier(), "Email cannot be null");
+        String roleName = Objects.requireNonNull(role, "Role cannot be null").name();
 
-        logService.log(user.getEmail(), user.getRole().name(), "REGISTER",
-        user.getRole() + " registered a new account.");
+        activityLogService.log(
+            email,
+            roleName,
+            "REGISTER",
+            user.getRole() + " registered a new account.");
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        String token = jwtUtil.generateToken(email, roleName);
         return new AuthResponse(token, user.getRole().name());
     }
 
-    public AuthResponse login(LoginRequest req){
-        String id = req.getIdentifier();
+    @SuppressWarnings("null")
+    public AuthResponse login(LoginRequest request){
+        String inputIdentifier = request.getIdentifier(); 
 
-        User user = userRepository.findByEmail(id)
-                .or(() -> userRepository.findAll().stream()
-                        .filter(u -> u instanceof HumanResource hr && hr.getUsername().equals(id))
-                        .findFirst())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByIdentifier(inputIdentifier)
+            .orElseThrow(() -> new InvalidCredentialsException("Invalid identifier or password."));
 
-        if(!encoder.matches(req.getPassword(), user.getPassword()))
-            throw new RuntimeException("Invalid email or password");
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new InvalidCredentialsException("Invalid identifier or password.");
+        }
 
-        String identifier = (user instanceof HumanResource hr)
-                ? hr.getUsername()
-                : user.getEmail();
+        String identifier = Objects.requireNonNull(user.getIdentifier(), "Identifier cannot be null");
+        String roleName = Objects.requireNonNull(user.getRole(), "Role cannot be null").name();
 
-        logService.log(user.getEmail(), user.getRole().name(), "LOGIN",
-        user.getRole() + " Logged in.");
+        activityLogService.log(identifier, roleName, "LOGIN", roleName + " logged in.");
 
-        String token = jwtUtil.generateToken(identifier, user.getRole().name());
-        return new AuthResponse(token, user.getRole().name());
+        String token = jwtUtil.generateToken(identifier, roleName);
+        return new AuthResponse(token, roleName);
     }
 
-    public AuthResponse loginAdmin(AdminLoginRequest req){
-        Admin admin = (Admin) userRepository.findByEmail(req.getEmail())
-                .filter(u -> u instanceof Admin)
-                .orElseThrow(() -> new RuntimeException("Admin not found"));
+    @SuppressWarnings("null")
+    public AuthResponse loginAdmin(AdminLoginRequest request){
+        User user = userRepository.findByIdentifier(request.getEmail())
+            .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
-        if(!encoder.matches(req.getPassword(), admin.getPassword()))
-            throw new RuntimeException("Wrong Password");
+        if(user.getRole() != Role.ADMIN || !(user instanceof Admin admin)){
+            throw new InvalidCredentialsException("Invalid email or password");
+        }
 
-        if(!verifyOtp("abcd1234", req.getOtp()))
-            throw new RuntimeException("Wrong OTP code");
+        if(!passwordEncoder.matches(request.getPassword(), admin.getPassword())){
+            throw new InvalidCredentialsException("Invalid email or password.");
+        }
 
-        logService.log(admin.getEmail(), "ADMIN", "LOGIN_ADMIN",
-        "Admin logged in with OTP.");
+        String otpSecret = "abcd1234";
+        if(!verifyOtp(otpSecret, request.getOtp())){
+            throw new InvalidCredentialsException("Wrong OTP code");      
+        }
 
-        String token = jwtUtil.generateToken(admin.getEmail(), admin.getRole().name());
-        return new AuthResponse(token, admin.getRole().name());
+        String email = Objects.requireNonNull(admin.getIdentifier(), "Email cannot be null.");
+        String roleName = Objects.requireNonNull(admin.getRole(), "Role cannot be null.").name();
+
+        activityLogService.log(
+            email,
+            roleName,
+            "LOGIN_ADMIN",
+            "Admin logged in with OTP."
+        );
+
+        String token = jwtUtil.generateToken(email, roleName);
+        return new AuthResponse(token, roleName);
     }
 
-    private boolean verifyOtp(String secret, String code){
+    public HrAccountResponse generateHr(Company company){
+        String username = generateUsername(company.getIdentifier());
+        String rawPassword = generatePassword();
+
+        HumanResource humanResource = new HumanResource();
+        humanResource.setIdentifier(username);
+        humanResource.setUsername(username);
+        humanResource.setPassword(passwordEncoder.encode(rawPassword));
+        humanResource.setRole(Role.HUMAN_RESOURCE);
+        humanResource.setCompany(company);
+        userRepository.save(humanResource);
+
+        activityLogService.log(
+            company.getIdentifier(),
+            company.getRole().name(),
+            "GENERATE_HR",
+            "Generated humanResource account: " + username);
+
+        return new HrAccountResponse(username, rawPassword, humanResource.getRole().name());
+    }
+
+     private boolean verifyOtp(String secret, String code){
         CodeVerifier verifier = new DefaultCodeVerifier(
-                new DefaultCodeGenerator(HashingAlgorithm.SHA1),
-                new SystemTimeProvider()
+            new DefaultCodeGenerator(HashingAlgorithm.SHA1),
+            new SystemTimeProvider()
         );
         return verifier.isValidCode(secret, code);
     }
-
-    private String generatePassword(){
-        String upper = RandomStringUtils.secure().next(2, true, false).toUpperCase();
-        String digit = RandomStringUtils.secure().next(2, false, true);
-        String rest = RandomStringUtils.secure().next(8, true, true);
-        return upper + digit + rest;
+    private String generateUsername(String email){
+        return 
+            email.split("@")[0] +
+            "_hr_" +
+            RandomStringUtils.secure().next(4, false, true);
     }
-
-    public HrAccountResponse generateHr(String companyEmail){
-        Company company = (Company) userRepository.findByEmail(companyEmail)
-                .filter(u -> u instanceof Company)
-                .orElseThrow(() -> new RuntimeException("Company not found"));
-
-        String username = company.getEmail().split("@")[0] + "_hr_" + RandomStringUtils.secure().next(3, false, true);
-        String rawPassword = generatePassword();
-
-        HumanResource hr = new HumanResource();
-        hr.setUsername(username);
-        hr.setPassword(encoder.encode(rawPassword));
-        hr.setRole(Role.HUMAN_RESOURCE);
-        hr.setCompany(company);
-        userRepository.save(hr);
-
-        logService.log(company.getEmail(), company.getRole().name(), "GENERATE_HR",
-        "Generated HR account: " + username);
-
-        return new HrAccountResponse(username, rawPassword, hr.getRole().name());
+    private String generatePassword(){
+        String uppercaseLetters = RandomStringUtils.secure().next(2, true, false).toUpperCase();
+        String alphanumerics = RandomStringUtils.secure().next(8, true, true);
+        String digits = RandomStringUtils.secure().next(2, false, true);
+        return uppercaseLetters + alphanumerics + digits;
     }
 }

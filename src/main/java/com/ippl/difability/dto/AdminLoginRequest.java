@@ -1,16 +1,16 @@
 package com.ippl.difability.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Value;
 
-@Getter
-@Setter
+@Value
 public class AdminLoginRequest {
-    @NotBlank
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is required")
     private String email;
-    @NotBlank
+    @NotBlank(message = "Password is required")
     private String password;
-    @NotBlank
+    @NotBlank(message = "OTP is required")
     private String otp;
 }

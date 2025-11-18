@@ -1,12 +1,10 @@
 package com.ippl.difability.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Value;
 
-@Getter
-@AllArgsConstructor
+@Value
 public class HrAccountResponse {
-    private final String username;
-    private final String password;
-    private final String role;
+    private String username;
+    private String password;
+    private String role;
 }
