@@ -1,9 +1,10 @@
 # Fitur & API Endpoint
 
 ## Register
-**POST** /api/auth/register
+**POST** /api/auth/register    
+Header: None  
 - Job Seeker
-- Company
+- Company  
 ```json
 {
   "email": "...",
@@ -13,7 +14,9 @@
 ```
 ---
 ## Login
-**POST** /api/auth/register
+**POST** /api/auth/register    
+Header: None  
+
 - Job Seeker
 - Company
 - Human Resource
@@ -25,7 +28,8 @@
 ```
 ---
 ## Login - Admin
-**POST** /api/auth/login/admin
+**POST** /api/auth/login/admin    
+Header: None  
 - Admin
 ```json
 {
@@ -36,8 +40,9 @@
 ``` 
 ---
 ## Update Profile
-**PUT** /api/user/update-profile
-- Job Seeker
+- Job Seeker  
+**PUT** /api/user/jobseeker-profile  
+Header: Bearer Token
 ```json
 {
   "name": "...",
@@ -51,7 +56,10 @@
   "certifFilePaths": ["/...", "/..."]
 }
 ``` 
-- Company
+- Company  
+**PUT** /api/user/company-profile    
+Header: Bearer Token
+
 ```json
 {
   "name": "...",
@@ -64,10 +72,12 @@
 ``` 
 ---
 ## Activity Log
-**GET** /api/admin/logs
+**GET** /api/admin/logs  
+Header: Bearer Token  
 - Admin
 ---
 ## Generate HR Account
-**POST** /api/company/generate-hr?companyEmail=...
+**POST** /api/company/generate-hr  
+Header: Bearer Token  
 - Company
 ---
