@@ -91,7 +91,7 @@ public class GlobalExceptionHandler {
     // 500
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleServerError(RuntimeException exception, HttpServletRequest request) {
-         ErrorResponse response = ErrorResponse.builder()
+        ErrorResponse response = ErrorResponse.builder()
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
             .message("An unexpected server error occurred.") 

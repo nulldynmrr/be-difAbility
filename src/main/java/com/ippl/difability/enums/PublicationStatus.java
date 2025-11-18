@@ -1,9 +1,16 @@
 package com.ippl.difability.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 
-// belum tau
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum PublicationStatus {
-    DRAFT,
-    PUBLISHED,
-    ARCHIVED
+    OPEN("Open"),
+    CLOSED("Closed");
+
+    @JsonValue
+    private final String label;
 }

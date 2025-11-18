@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ippl.difability.enums.DisabilityType;
 import com.ippl.difability.enums.EducationLevel;
 import com.ippl.difability.enums.PublicationStatus;
@@ -37,6 +38,7 @@ public class Job {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", nullable = false)
+    @JsonIgnore
     private Company company;
 
     private String title;
@@ -65,7 +67,7 @@ public class Job {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    @PrePersist
+    @PrePersist 
     public void setCreatedAt() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();

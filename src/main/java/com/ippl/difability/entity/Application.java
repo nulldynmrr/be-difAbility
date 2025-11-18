@@ -17,7 +17,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,18 +42,9 @@ public class Application {
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status = ApplicationStatus.UNDER_REVIEW;
 
-    private String cvFilePath;
-
-    @Column(length = 2000)
+    @Column(length = 256)
     private String hrNotes;
 
     @CreationTimestamp
     private LocalDateTime appliedAt;
-
-    @PrePersist
-    public void syncCvFilePath() {
-        if (this.cvFilePath == null && jobSeeker != null) {
-            this.cvFilePath = jobSeeker.getCvFilePath();
-        }
-    }
 }
