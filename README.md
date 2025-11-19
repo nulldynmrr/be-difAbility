@@ -81,3 +81,7 @@ Header: Bearer Token
 Header: Bearer Token  
 - Company
 ---
+## Create Job
+**POST** /api/job/create
+Header: Bearer Token
+- Human Resource
