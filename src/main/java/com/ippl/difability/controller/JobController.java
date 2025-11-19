@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ippl.difability.dto.CreateJobRequest;
-import com.ippl.difability.entity.HumanResource;
 import com.ippl.difability.entity.Job;
 import com.ippl.difability.repository.JobRepository;
 import com.ippl.difability.service.JobService;
@@ -29,10 +29,12 @@ public class JobController {
     @PostMapping("/create")
     @PreAuthorize("hasRole('HUMAN_RESOURCE')")
     public Job createJob(
-        @AuthenticationPrincipal HumanResource humanResource,
+        @AuthenticationPrincipal UserDetails principal,
         @Valid @RequestBody CreateJobRequest request){
-
-        return jobService.createJob(humanResource, request);
+        
+        String identifier = principal.getUsername();
+        
+        return jobService.createJob(identifier, request);
     }
 
     @GetMapping("/list")
