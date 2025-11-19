@@ -5,10 +5,11 @@ import org.springframework.stereotype.Service;
 import com.ippl.difability.entity.Application;
 import com.ippl.difability.entity.Job;
 import com.ippl.difability.entity.JobSeeker;
-import com.ippl.difability.exception.ResourceNotFoundException;
 import com.ippl.difability.exception.ResourceConflictException;
+import com.ippl.difability.exception.ResourceNotFoundException;
 import com.ippl.difability.repository.ApplicationRepository;
 import com.ippl.difability.repository.JobRepository;
+import com.ippl.difability.repository.JobSeekerRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,20 +18,23 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional
 public class ApplicationService {
-    private final ApplicationRepository applicationRepository;
-    private final JobRepository jobRepository;
     private final ActivityLogService activityLogService;
+    private final ApplicationRepository applicationRepository;
+    private final JobSeekerRepository jobSeekerRepository;
+    private final JobRepository jobRepository;
 
-    public Application createApplication(JobSeeker jobSeeker, Long jobId) {
-        if(jobId == null){
-            throw new IllegalArgumentException("Job ID must not be null."); 
-        }
+    @SuppressWarnings("null")
+    public Application createApplication(String identifier, Long jobId){
+        JobSeeker jobSeeker = jobSeekerRepository.findByIdentifier(identifier)
+            .orElseThrow(() -> new ResourceNotFoundException("Job Seeker not found."));
 
         Job job = jobRepository.findById(jobId)
-            .orElseThrow(() -> new ResourceNotFoundException("Job with id " + jobId + " not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Job not found."));
 
         if(applicationRepository.existsByJobSeekerAndJob(jobSeeker, job)){
-            throw new ResourceConflictException(jobSeeker.getIdentifier() + "has already applied to" + job.getTitle());
+            throw new ResourceConflictException(
+                jobSeeker.getIdentifier() + " has already applied to " + job.getTitle()
+            );
         }
         
         Application application = new Application();
@@ -41,7 +45,7 @@ public class ApplicationService {
             jobSeeker.getIdentifier(),
             jobSeeker.getRole().name(),
             "CREATE_APPLICATION",
-            jobSeeker.getRole() + " created an application"
+            jobSeeker.getRole() + " applied to: " + job.getTitle()
         );
 
         return applicationRepository.save(application);

@@ -22,7 +22,7 @@ public class JobService {
 
     public Job createJob(String identifier, CreateJobRequest request) {
         HumanResource humanResource = humanResourceRepository.findByIdentifier(identifier)
-            .orElseThrow(() -> new ResourceNotFoundException("HR not found!"));
+            .orElseThrow(() -> new ResourceNotFoundException("HR not found."));
 
         Job job = new Job();
         job.setCompany(humanResource.getCompany());
@@ -39,8 +39,9 @@ public class JobService {
             humanResource.getUsername(),
             humanResource.getRole().name(),
             "CREATE_JOB",
-            humanResource.getRole() + "created job: " + request.getTitle()
+            humanResource.getRole().name() + " created job: " + job.getTitle()
         );
+
         return jobRepository.save(job);
     }
 }

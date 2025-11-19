@@ -1,48 +1,63 @@
 # Fitur & API Endpoint
 
-## Register
-**POST** /api/auth/register    
-Header: None  
+## AUTHENTICATION
+
+### Register
+
+**POST** /api/auth/register  
+Header: None
+
 - Job Seeker
-- Company  
+- Company
+
 ```json
 {
   "email": "...",
   "password": "..."
-  "role": "JOB_SEEKER/COMPANY" 
+  "role": "JOB_SEEKER/COMPANY"
 }
 ```
----
-## Login
-**POST** /api/auth/register    
-Header: None  
+
+### Login
+
+**POST** /api/auth/register  
+Header: None
 
 - Job Seeker
 - Company
 - Human Resource
+
 ```json
 {
   "identifier": "email/username",
   "password": "..."
 }
 ```
----
-## Login - Admin
-**POST** /api/auth/login/admin    
-Header: None  
+
+### Login - Admin
+
+**POST** /api/auth/login/admin  
+Header: None
+
 - Admin
+
 ```json
 {
   "email": "admin@ippl.com",
   "password": "Admin1234",
   "otp": "..."
 }
-``` 
+```
+
 ---
+
+## JOBSEEKER
+
 ## Update Profile
-- Job Seeker  
+
 **PUT** /api/user/jobseeker-profile  
 Header: Bearer Token
+
 ```json
 {
   "name": "...",
@@ -55,10 +70,22 @@ Header: Bearer Token
   "cvFilePath": "/...",
   "certifFilePaths": ["/...", "/..."]
 }
-``` 
-- Company  
-**PUT** /api/user/company-profile    
+```
+
+### Create Application
+
+**POST** /api/application/{jobId}  
 Header: Bearer Token
+
+---
+
+## COMPANY
+
+## Update Profile
+
+**PUT** /api/user/company-profile  
+Header: Bearer Token
+
 ```json
 {
   "name": "...",
@@ -68,22 +95,31 @@ Header: Bearer Token
   "websiteUrl": "...",
   "logoImgPath": "/..."
 }
-``` 
----
-## Activity Log
-**GET** /api/admin/logs  
-Header: Bearer Token  
-- Admin
----
+```
+
 ## Generate HR Account
+
 **POST** /api/company/generate-hr  
-Header: Bearer Token  
-- Company
+Header: Bearer Token
+
 ---
-## Create Job
+
+## ADMIN
+
+### Activity Log
+
+**GET** /api/admin/logs  
+Header: Bearer Token
+
+---
+
+## HUMAN RESOURCE
+
+### Create Job
+
 **POST** /api/job/create  
-Header: Bearer Token  
-- Human Resource
+Header: Bearer Token
+
 ```json
 {
   "title": "...",
@@ -95,4 +131,6 @@ Header: Bearer Token
   "registrationDeadline": "2025-12-31T23:59:59",
   "publicationStatus": "Open"
 }
-``` 
+```
+
+---
