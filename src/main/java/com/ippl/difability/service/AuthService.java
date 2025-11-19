@@ -2,18 +2,15 @@ package com.ippl.difability.service;
 
 import java.util.Objects;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ippl.difability.dto.AdminLoginRequest;
 import com.ippl.difability.dto.AuthResponse;
-import com.ippl.difability.dto.HrAccountResponse;
 import com.ippl.difability.dto.LoginRequest;
 import com.ippl.difability.dto.RegisterRequest;
 import com.ippl.difability.entity.Admin;
 import com.ippl.difability.entity.Company;
-import com.ippl.difability.entity.HumanResource;
 import com.ippl.difability.entity.JobSeeker;
 import com.ippl.difability.entity.User;
 import com.ippl.difability.enums.Role;
@@ -21,6 +18,7 @@ import com.ippl.difability.exception.ForbiddenException;
 import com.ippl.difability.exception.InvalidCredentialsException;
 import com.ippl.difability.exception.ResourceConflictException;
 import com.ippl.difability.repository.UserRepository;
+import com.ippl.difability.repository.AdminRepository;
 import com.ippl.difability.security.JwtUtil;
 
 import dev.samstevens.totp.code.CodeVerifier;
@@ -35,15 +33,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional
 public class AuthService {
-    private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final ActivityLogService activityLogService;
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
 
     @SuppressWarnings("null")
     public AuthResponse register(RegisterRequest request){
         if(userRepository.existsByIdentifier(request.getEmail())){
-            throw new ResourceConflictException("Email already exists");
+            throw new ResourceConflictException("Email already exists.");
         }
 
         Role role = request.getRole();
@@ -65,27 +64,31 @@ public class AuthService {
             email,
             roleName,
             "REGISTER",
-            user.getRole() + " registered a new account.");
+            roleName + " registered a new account"
+        );
 
         String token = jwtUtil.generateToken(email, roleName);
-        return new AuthResponse(token, user.getRole().name());
+        return new AuthResponse(token, roleName);
     }
 
     @SuppressWarnings("null")
     public AuthResponse login(LoginRequest request){
-        String inputIdentifier = request.getIdentifier(); 
-
-        User user = userRepository.findByIdentifier(inputIdentifier)
+        User user = userRepository.findByIdentifier(request.getIdentifier())
             .orElseThrow(() -> new InvalidCredentialsException("Invalid identifier or password."));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new InvalidCredentialsException("Invalid identifier or password.");
         }
 
-        String identifier = Objects.requireNonNull(user.getIdentifier(), "Identifier cannot be null");
-        String roleName = Objects.requireNonNull(user.getRole(), "Role cannot be null").name();
+        String identifier = Objects.requireNonNull(user.getIdentifier(), "Identifier cannot be null.");
+        String roleName = Objects.requireNonNull(user.getRole(), "Role cannot be null.").name();
 
-        activityLogService.log(identifier, roleName, "LOGIN", roleName + " logged in.");
+        activityLogService.log(
+            identifier,
+            roleName,
+            "LOGIN",
+            roleName + " logged in"
+        );
 
         String token = jwtUtil.generateToken(identifier, roleName);
         return new AuthResponse(token, roleName);
@@ -93,12 +96,8 @@ public class AuthService {
 
     @SuppressWarnings("null")
     public AuthResponse loginAdmin(AdminLoginRequest request){
-        User user = userRepository.findByIdentifier(request.getEmail())
-            .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
-
-        if(user.getRole() != Role.ADMIN || !(user instanceof Admin admin)){
-            throw new InvalidCredentialsException("Invalid email or password");
-        }
+        Admin admin = adminRepository.findByIdentifier(request.getEmail())
+            .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password."));
 
         if(!passwordEncoder.matches(request.getPassword(), admin.getPassword())){
             throw new InvalidCredentialsException("Invalid email or password.");
@@ -116,32 +115,11 @@ public class AuthService {
             email,
             roleName,
             "LOGIN_ADMIN",
-            "Admin logged in with OTP."
+            roleName + " logged in with OTP"
         );
 
         String token = jwtUtil.generateToken(email, roleName);
         return new AuthResponse(token, roleName);
-    }
-
-    public HrAccountResponse generateHr(Company company){
-        String username = generateUsername(company.getIdentifier());
-        String rawPassword = generatePassword();
-
-        HumanResource humanResource = new HumanResource();
-        humanResource.setIdentifier(username);
-        humanResource.setUsername(username);
-        humanResource.setPassword(passwordEncoder.encode(rawPassword));
-        humanResource.setRole(Role.HUMAN_RESOURCE);
-        humanResource.setCompany(company);
-        userRepository.save(humanResource);
-
-        activityLogService.log(
-            company.getIdentifier(),
-            company.getRole().name(),
-            "GENERATE_HR",
-            "Generated humanResource account: " + username);
-
-        return new HrAccountResponse(username, rawPassword, humanResource.getRole().name());
     }
 
      private boolean verifyOtp(String secret, String code){
@@ -150,17 +128,5 @@ public class AuthService {
             new SystemTimeProvider()
         );
         return verifier.isValidCode(secret, code);
-    }
-    private String generateUsername(String email){
-        return 
-            email.split("@")[0] +
-            "_hr_" +
-            RandomStringUtils.secure().next(4, false, true);
-    }
-    private String generatePassword(){
-        String uppercaseLetters = RandomStringUtils.secure().next(2, true, false).toUpperCase();
-        String alphanumerics = RandomStringUtils.secure().next(8, true, true);
-        String digits = RandomStringUtils.secure().next(2, false, true);
-        return uppercaseLetters + alphanumerics + digits;
     }
 }

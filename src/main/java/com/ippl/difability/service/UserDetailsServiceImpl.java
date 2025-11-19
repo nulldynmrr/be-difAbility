@@ -1,12 +1,12 @@
 package com.ippl.difability.service;
 
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.ippl.difability.repository.UserRepository;
 import com.ippl.difability.entity.User;
+import com.ippl.difability.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,7 +17,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
-        
         User user = userRepository.findByIdentifier(identifier)
             .orElseThrow(() -> new UsernameNotFoundException("User not found: " + identifier));
         

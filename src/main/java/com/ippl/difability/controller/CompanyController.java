@@ -8,10 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ippl.difability.dto.HrAccountResponse;
-import com.ippl.difability.entity.Company;
-import com.ippl.difability.entity.User;
-import com.ippl.difability.repository.UserRepository;
-import com.ippl.difability.service.AuthService;
+import com.ippl.difability.service.CompanyService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,22 +16,13 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/company")
 @RequiredArgsConstructor
 public class CompanyController {
-    private final AuthService authService;
-    private final UserRepository userRepository;
+    private final CompanyService companyService;
 
     @PostMapping("/generate-hr")
     @PreAuthorize("hasRole('COMPANY')")
-    public HrAccountResponse generateHr(@AuthenticationPrincipal UserDetails principal) {
-    String identifier = principal.getUsername();
-        User user = userRepository.findByIdentifier(identifier)
-            .orElseThrow(() -> new IllegalStateException("User not found"));
+    public HrAccountResponse generateHr(@AuthenticationPrincipal UserDetails principal){
+        String identifier = principal.getUsername();
 
-        if(!(user instanceof Company)){
-            throw new IllegalStateException("Authenticated user is not a company");
-        }
-
-        Company company = (Company) user;
-
-        return authService.generateHr(company);
+        return companyService.generateHr(identifier);
     }
 }

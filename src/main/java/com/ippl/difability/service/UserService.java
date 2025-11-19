@@ -25,19 +25,18 @@ public class UserService {
 
     public JobSeeker updateJobSeekerProfile(String identifier, UpdateJobSeekerProfileRequest request){ 
         JobSeeker jobSeeker = jobSeekerRepository.findByIdentifier(identifier)
-            .orElseThrow(() -> new ResourceNotFoundException("Job Seeker not found!"));
+            .orElseThrow(() -> new ResourceNotFoundException("Job Seeker not found."));
 
         if(jobSeeker.getRole() != Role.JOB_SEEKER){
             throw new ForbiddenException("Only Job Seekers can update this profile type.");
         }
 
         applyJobSeekerUpdates(jobSeeker, request);
-
         activityLogService.log(
             jobSeeker.getIdentifier(),
             jobSeeker.getRole().name(),
             "UPDATE_PROFILE",
-            jobSeeker.getRole() + " updated their profile"
+            jobSeeker.getRole().name() + " updated their profile"
         );
 
         return jobSeekerRepository.save(jobSeeker);
@@ -45,7 +44,7 @@ public class UserService {
 
     public Company updateCompanyProfile(String identifier, UpdateCompanyProfileRequest request){ 
         Company company = companyRepository.findByIdentifier(identifier)
-            .orElseThrow(() -> new ResourceNotFoundException("Company not found!"));
+            .orElseThrow(() -> new ResourceNotFoundException("Company not found."));
             
         if(company.getRole() != Role.COMPANY){
             throw new ForbiddenException("Only Companies can update this profile type.");
@@ -56,7 +55,7 @@ public class UserService {
             company.getIdentifier(),
             company.getRole().name(),
             "UPDATE_PROFILE",
-            company.getRole() + " updated their profile"
+            company.getRole().name() + " updated their profile"
         );
 
         return companyRepository.save(company);
