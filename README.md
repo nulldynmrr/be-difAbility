@@ -59,7 +59,6 @@ Header: Bearer Token
 - Company  
 **PUT** /api/user/company-profile    
 Header: Bearer Token
-
 ```json
 {
   "name": "...",
@@ -82,6 +81,18 @@ Header: Bearer Token
 - Company
 ---
 ## Create Job
-**POST** /api/job/create
-Header: Bearer Token
+**POST** /api/job/create  
+Header: Bearer Token  
 - Human Resource
+```json
+{
+  "title": "...",
+  "description": "...",
+  "salary": 1000,
+  "minimumEducation": "High School/College Student/Bachelor/Master/Doctorate",
+  "minimumYearsExperience": 1,
+  "compatibleDisabilities": ["Visual/Hearing/Mobility/Cognitive", "..."],
+  "registrationDeadline": "2025-12-31T23:59:59",
+  "publicationStatus": "Open"
+}
+``` 
