@@ -7,6 +7,7 @@ import lombok.Value;
 public class LoginRequest {
     @NotBlank
     private String identifier;
+    
     @NotBlank
     private String password;
 }

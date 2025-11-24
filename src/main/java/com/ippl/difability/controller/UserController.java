@@ -29,7 +29,6 @@ public class UserController {
         @Valid @RequestBody UpdateJobSeekerProfileRequest request){
         
         String identifier = principal.getUsername();
-
         return userService.updateJobSeekerProfile(identifier, request);
     }
 
@@ -40,7 +39,6 @@ public class UserController {
         @Valid @RequestBody UpdateCompanyProfileRequest request){
         
         String identifier = principal.getUsername();
-
         return userService.updateCompanyProfile(identifier, request);
     }
 }

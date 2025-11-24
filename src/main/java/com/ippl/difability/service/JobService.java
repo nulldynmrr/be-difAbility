@@ -20,7 +20,7 @@ public class JobService {
     private final ActivityLogService activityLogService;
     private final HumanResourceRepository humanResourceRepository;
 
-    public Job createJob(String identifier, CreateJobRequest request) {
+    public Job createJob(String identifier, CreateJobRequest request){
         HumanResource humanResource = humanResourceRepository.findByIdentifier(identifier)
             .orElseThrow(() -> new ResourceNotFoundException("HR not found."));
 
@@ -36,7 +36,7 @@ public class JobService {
         job.setPublicationStatus(request.getPublicationStatus());
 
         activityLogService.log(
-            humanResource.getUsername(),
+            humanResource.getIdentifier(),
             humanResource.getRole().name(),
             "CREATE_JOB",
             humanResource.getRole().name() + " created job: " + job.getTitle()

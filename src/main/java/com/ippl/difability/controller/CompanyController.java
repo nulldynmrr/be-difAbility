@@ -22,7 +22,6 @@ public class CompanyController {
     @PreAuthorize("hasRole('COMPANY')")
     public HrAccountResponse generateHr(@AuthenticationPrincipal UserDetails principal){
         String identifier = principal.getUsername();
-
         return companyService.generateHr(identifier);
     }
 }

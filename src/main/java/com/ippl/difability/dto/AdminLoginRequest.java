@@ -9,8 +9,10 @@ public class AdminLoginRequest {
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")
     private String email;
+
     @NotBlank(message = "Password is required")
     private String password;
+    
     @NotBlank(message = "OTP is required")
     private String otp;
 }

@@ -17,8 +17,8 @@ import com.ippl.difability.enums.Role;
 import com.ippl.difability.exception.ForbiddenException;
 import com.ippl.difability.exception.InvalidCredentialsException;
 import com.ippl.difability.exception.ResourceConflictException;
-import com.ippl.difability.repository.UserRepository;
 import com.ippl.difability.repository.AdminRepository;
+import com.ippl.difability.repository.UserRepository;
 import com.ippl.difability.security.JwtUtil;
 
 import dev.samstevens.totp.code.CodeVerifier;
@@ -39,7 +39,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
 
-    @SuppressWarnings("null")
     public AuthResponse register(RegisterRequest request){
         if(userRepository.existsByIdentifier(request.getEmail())){
             throw new ResourceConflictException("Email already exists.");
@@ -71,7 +70,6 @@ public class AuthService {
         return new AuthResponse(token, roleName);
     }
 
-    @SuppressWarnings("null")
     public AuthResponse login(LoginRequest request){
         User user = userRepository.findByIdentifier(request.getIdentifier())
             .orElseThrow(() -> new InvalidCredentialsException("Invalid identifier or password."));

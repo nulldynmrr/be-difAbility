@@ -15,8 +15,10 @@ public class RegisterRequest {
     private String email;
 
     @NotBlank
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d).{8,}$",
-            message = "Password must be at least 8 characters long: with 1 uppercase and 1 number")
+    @Pattern(
+        regexp = "^(?=.*[A-Z])(?=.*\\d).{8,}$",
+        message = "Password must be at least 8 characters long: with 1 uppercase and 1 number"
+    )
     private String password;
 
     @NotNull(message = "Role cannot be null")

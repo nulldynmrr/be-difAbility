@@ -33,7 +33,6 @@ public class JobController {
         @Valid @RequestBody CreateJobRequest request){
         
         String identifier = principal.getUsername();
-        
         return jobService.createJob(identifier, request);
     }
 

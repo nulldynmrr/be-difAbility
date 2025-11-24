@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 
 import com.ippl.difability.dto.HrAccountResponse;
 import com.ippl.difability.entity.Company;
-import com.ippl.difability.repository.CompanyRepository;
 import com.ippl.difability.entity.HumanResource;
 import com.ippl.difability.enums.Role;
 import com.ippl.difability.exception.ResourceNotFoundException;
+import com.ippl.difability.repository.CompanyRepository;
 import com.ippl.difability.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -33,7 +33,6 @@ public class CompanyService {
 
         HumanResource humanResource = new HumanResource();
         humanResource.setIdentifier(username);
-        humanResource.setUsername(username);
         humanResource.setPassword(passwordEncoder.encode(rawPassword));
         humanResource.setRole(Role.HUMAN_RESOURCE);
         humanResource.setCompany(company);
@@ -50,10 +49,11 @@ public class CompanyService {
     }
 
     private String generateUsername(String identifier){
-        return 
+        return(
             identifier.split("@")[0] +
             "_hr_" +
-            RandomStringUtils.secure().next(4, false, true);
+            RandomStringUtils.secure().next(4, false, true)
+        );
     }
 
     private String generatePassword(){

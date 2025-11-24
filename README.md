@@ -53,7 +53,7 @@ Header: None
 
 ## JOBSEEKER
 
-## Update Profile
+### Update Profile
 
 **PUT** /api/user/jobseeker-profile  
 Header: Bearer Token
@@ -81,7 +81,7 @@ Header: Bearer Token
 
 ## COMPANY
 
-## Update Profile
+### Update Profile
 
 **PUT** /api/user/company-profile  
 Header: Bearer Token
@@ -97,7 +97,7 @@ Header: Bearer Token
 }
 ```
 
-## Generate HR Account
+### Generate HR Account
 
 **POST** /api/company/generate-hr  
 Header: Bearer Token
@@ -133,4 +133,14 @@ Header: Bearer Token
 }
 ```
 
----
+### Review Job
+
+**POST** /api/application/{applicationId}/review
+Header: Bearer Token
+
+```json
+{
+  "status": "Accepted/Declined",
+  "hrNotes": "..."
+}
+```

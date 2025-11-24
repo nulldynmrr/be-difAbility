@@ -21,14 +21,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleValidationErrors(
         MethodArgumentNotValidException exception, HttpServletRequest request){
 
-        Map<String, String> errors = exception.getBindingResult().getFieldErrors().stream()
-            .collect(Collectors.toMap(
-                FieldError::getField, 
-                FieldError::getDefaultMessage, 
-                (existing, replacement) -> existing, 
-                LinkedHashMap::new 
-			)
-        );
+        Map<String, String> errors = exception
+                .getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .collect(Collectors.toMap(
+            FieldError::getField, 
+            FieldError::getDefaultMessage, 
+            (existing, replacement) -> existing, 
+            LinkedHashMap::new 
+		)
+    );
 
         ErrorResponse response = ErrorResponse.builder()
             .status(HttpStatus.BAD_REQUEST.value())

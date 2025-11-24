@@ -4,8 +4,8 @@ import java.security.Key;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
-import org.springframework.lang.NonNull; 
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -30,7 +30,7 @@ public class JwtUtil {
         this.expirationMiliSecond = expirationMiliSecond;
     }
 
-    public String generateToken(@NonNull String identifier, @NonNull String role){
+    public String generateToken(@NonNull String identifier, @NonNull String role) {
         long now = System.currentTimeMillis();
         return Jwts.builder()
             .setSubject(identifier)
@@ -41,7 +41,7 @@ public class JwtUtil {
             .compact();
     }
 
-    public boolean validateToken(@NonNull String token){
+    public boolean validateToken(@NonNull String token) {
         try{
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
@@ -55,11 +55,11 @@ public class JwtUtil {
             .parseClaimsJws(token).getBody();
     }
 
-    public String extractIdentifier(@NonNull String token){
+    public String extractIdentifier(@NonNull String token) {
         return getClaims(token).getSubject(); 
     }
 
-    public String extractRole(@NonNull String token){
+    public String extractRole(@NonNull String token) {
         return (String) getClaims(token).get("role");
     }
 }

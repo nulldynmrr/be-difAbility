@@ -1,5 +1,6 @@
 package com.ippl.difability.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,7 @@ public class Job {
     @Column(length = 2000)
     private String description;
 
-    private Double salary;
+    private BigDecimal salary;
 
     @Enumerated(EnumType.STRING)
     private EducationLevel minimumEducation;
