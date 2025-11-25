@@ -13,12 +13,12 @@ import com.ippl.difability.service.CompanyService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/company")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class CompanyController {
     private final CompanyService companyService;
 
-    @PostMapping("/generate-hr")
+    @PostMapping("/company/hr-accounts")
     @PreAuthorize("hasRole('COMPANY')")
     public HrAccountResponse generateHr(@AuthenticationPrincipal UserDetails principal){
         String identifier = principal.getUsername();

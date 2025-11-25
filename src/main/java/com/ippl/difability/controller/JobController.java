@@ -20,13 +20,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/job")
+@RequestMapping("/api/jobs")
 @RequiredArgsConstructor
 public class JobController {
     private final JobRepository jobRepository;
     private final JobService jobService;
 
-    @PostMapping("/create")
+    @PostMapping
     @PreAuthorize("hasRole('HUMAN_RESOURCE')")
     public Job createJob(
         @AuthenticationPrincipal UserDetails principal,
@@ -36,7 +36,7 @@ public class JobController {
         return jobService.createJob(identifier, request);
     }
 
-    @GetMapping("/list")
+    @GetMapping
     public List<Job> getAllJobs() {
         return jobRepository.findAll();
     }

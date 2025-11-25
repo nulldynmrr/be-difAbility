@@ -27,7 +27,7 @@ import lombok.Setter;
 @PrimaryKeyJoinColumn(name = "id")
 public class JobSeeker extends User {
     private String name;
-    @Column(length = 1000)
+
     private String about;
 
     private String address;

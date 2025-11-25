@@ -13,12 +13,12 @@ import com.ippl.difability.repository.ActivityLogRepository;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/activity-logs")
 @RequiredArgsConstructor
 public class ActivityLogController {
     private final ActivityLogRepository activityLogRepository;
 
-    @GetMapping("/logs")
+    @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public List<ActivityLog> getAllLogs(){
         return activityLogRepository.findAll();

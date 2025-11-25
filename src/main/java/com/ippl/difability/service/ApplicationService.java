@@ -44,6 +44,10 @@ public class ApplicationService {
             );
         }
         
+        if(job.getPublicationStatus() != PublicationStatus.OPEN){
+            throw new ResourceConflictException("Job is closed.");
+        }
+        
         Application application = new Application();
         application.setJobSeeker(jobSeeker);
         application.setJob(job);

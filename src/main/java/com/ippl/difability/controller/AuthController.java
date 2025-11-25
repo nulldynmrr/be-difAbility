@@ -20,17 +20,17 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
     private final AuthService authService;
 
-    @PostMapping("/register")
+    @PostMapping("/registrations")
     public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);
     }
 
-    @PostMapping("/login")
+    @PostMapping("/sessions")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
     }
 
-    @PostMapping("/login/admin")
+    @PostMapping("/admin-sessions")
     public AuthResponse loginAdmin(@Valid @RequestBody AdminLoginRequest request) {
         return authService.loginAdmin(request);
     }

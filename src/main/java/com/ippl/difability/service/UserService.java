@@ -30,8 +30,9 @@ public class UserService {
         if(jobSeeker.getRole() != Role.JOB_SEEKER){
             throw new ForbiddenException("Only Job Seekers can update this profile type.");
         }
-
+        
         applyJobSeekerUpdates(jobSeeker, request);
+        
         activityLogService.log(
             jobSeeker.getIdentifier(),
             jobSeeker.getRole().name(),
@@ -49,6 +50,7 @@ public class UserService {
         if(company.getRole() != Role.COMPANY){
             throw new ForbiddenException("Only Companies can update this profile type.");
         }
+        
         applyCompanyUpdates(company, request);
         
         activityLogService.log(

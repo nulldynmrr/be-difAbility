@@ -1,8 +1,11 @@
 package com.ippl.difability.controller;
 
+import java.util.List;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,18 +16,20 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ippl.difability.dto.ReviewApplicationRequest;
 import com.ippl.difability.dto.ReviewApplicationResponse;
 import com.ippl.difability.entity.Application;
+import com.ippl.difability.repository.ApplicationRepository;
 import com.ippl.difability.service.ApplicationService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("api/application/")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class ApplicationController {
     public final ApplicationService applicationService;
+    public final ApplicationRepository applicationRepository;
 
-    @PostMapping("{jobId}")
+    @PostMapping("/jobs/{jobId}/applications")
     @PreAuthorize("hasRole('JOB_SEEKER')")
     public Application createApplication(
         @PathVariable Long jobId,
@@ -34,7 +39,7 @@ public class ApplicationController {
         return applicationService.createApplication(identifier, jobId);
     }
 
-    @PatchMapping("/{applicationId}/review")
+    @PatchMapping("/applications/{applicationId}")
     @PreAuthorize("hasRole('HUMAN_RESOURCE')")
     public ReviewApplicationResponse reviewApplication(
         @PathVariable Long applicationId,
@@ -43,5 +48,10 @@ public class ApplicationController {
 
         String identifier = principal.getUsername();
         return applicationService.reviewApplication(identifier, applicationId, request);
+    }
+
+    @GetMapping("/applications")
+    public List<Application> getAllApplications(){
+        return applicationRepository.findAll();
     }
 }

@@ -4,7 +4,7 @@
 
 ### Register
 
-**POST** /api/auth/register  
+**POST** /api/auth/registrations  
 Header: None
 
 - Job Seeker
@@ -20,7 +20,7 @@ Header: None
 
 ### Login
 
-**POST** /api/auth/register  
+**POST** /api/auth/sessions  
 Header: None
 
 - Job Seeker
@@ -36,7 +36,7 @@ Header: None
 
 ### Login - Admin
 
-**POST** /api/auth/login/admin  
+**POST** /api/auth/admin-sessions  
 Header: None
 
 - Admin
@@ -55,7 +55,7 @@ Header: None
 
 ### Update Profile
 
-**PUT** /api/user/jobseeker-profile  
+**PATCH** /api/jobseeker/profile  
 Header: Bearer Token
 
 ```json
@@ -74,7 +74,7 @@ Header: Bearer Token
 
 ### Create Application
 
-**POST** /api/application/{jobId}  
+**POST** /api/jobs/{jobId}/applications  
 Header: Bearer Token
 
 ---
@@ -83,7 +83,7 @@ Header: Bearer Token
 
 ### Update Profile
 
-**PUT** /api/user/company-profile  
+**PATCH** /api/company/profile  
 Header: Bearer Token
 
 ```json
@@ -99,7 +99,7 @@ Header: Bearer Token
 
 ### Generate HR Account
 
-**POST** /api/company/generate-hr  
+**POST** /api/company/hr-accounts
 Header: Bearer Token
 
 ---
@@ -108,7 +108,7 @@ Header: Bearer Token
 
 ### Activity Log
 
-**GET** /api/admin/logs  
+**GET** /api/activity-logs
 Header: Bearer Token
 
 ---
@@ -117,7 +117,7 @@ Header: Bearer Token
 
 ### Create Job
 
-**POST** /api/job/create  
+**POST** /api/jobs  
 Header: Bearer Token
 
 ```json
@@ -135,7 +135,7 @@ Header: Bearer Token
 
 ### Review Job
 
-**POST** /api/application/{applicationId}/review
+**PATCH** /api/applications/{applicationId}/  
 Header: Bearer Token
 
 ```json

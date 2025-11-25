@@ -3,7 +3,7 @@ package com.ippl.difability.controller;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,12 +17,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-
-    @PutMapping("/jobseeker-profile")
+    
+    @PatchMapping("/jobseeker/profile")
     @PreAuthorize("hasRole('JOB_SEEKER')")
     public User updateJobSeekerProfile(
         @AuthenticationPrincipal UserDetails principal,
@@ -32,7 +32,7 @@ public class UserController {
         return userService.updateJobSeekerProfile(identifier, request);
     }
 
-    @PutMapping("/company-profile")
+    @PatchMapping("/company/profile")
     @PreAuthorize("hasRole('COMPANY')")
     public User updateCompanyProfile(
         @AuthenticationPrincipal UserDetails principal,
