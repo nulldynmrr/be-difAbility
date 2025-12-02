@@ -1,6 +1,5 @@
 package com.ippl.difability.entity;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,8 +12,8 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -26,35 +25,42 @@ import lombok.Setter;
 @Table(name = "job_seekers")
 @PrimaryKeyJoinColumn(name = "id")
 public class JobSeeker extends User {
-    private String name;
+    @Column(name = "full_name", length = 50)
+    private String fullName;
 
+    @Column(name = "about_me", length = 500)
     private String about;
 
+    @Column(name = "address", length = 150)
     private String address;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "disability_type", length = 10)
     private DisabilityType disabilityType;
 
-    @ElementCollection
-    @CollectionTable(name = "job_seeker_skills", joinColumns = @JoinColumn(name = "job_seeker_id"))
-    @Column(name = "skill")
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+        name = "job_seeker_skills", joinColumns 
+        = @JoinColumn(name = "job_seeker_id", nullable = false)
+    )
+    @Column(name = "skill", nullable = false, length = 50)
     private List<String> skills = new ArrayList<>();
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+        name = "job_seeker_certifications", joinColumns 
+        = @JoinColumn(name = "job_seeker_id", nullable = false)
+    )
+    @Column(name = "certification_file_path", nullable = false, length = 100)
+    private List<String> certificationFilePaths = new ArrayList<>();
+    
     @Enumerated(EnumType.STRING)
+    @Column(name = "education_level", length = 20)
     private EducationLevel educationLevel;
 
-    private String ppImgPath;   
-    private String cvFilePath;   
+    @Column(name = "pp_image_path", length = 100)
+    private String ppImagePath;   
 
-    @ElementCollection
-    @CollectionTable(name = "job_seeker_certifications", joinColumns = @JoinColumn(name = "job_seeker_id"))
-    @Column(name = "certification_path")
-    private List<String> certifFilePaths = new ArrayList<>();
-
-    private LocalDateTime updatedAt;
-
-    @PreUpdate
-    public void setUpdatedAt() {
-        this.updatedAt = LocalDateTime.now();
-    }
+    @Column(name = "cv_document_path", length = 100)
+    private String cvDocumentPath;   
 }

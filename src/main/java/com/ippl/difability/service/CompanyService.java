@@ -3,63 +3,68 @@ package com.ippl.difability.service;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.ippl.difability.dto.HrAccountResponse;
+import com.ippl.difability.dto.response.HrCredentialResponse;
 import com.ippl.difability.entity.Company;
 import com.ippl.difability.entity.HumanResource;
 import com.ippl.difability.enums.Role;
-import com.ippl.difability.exception.ResourceNotFoundException;
+import com.ippl.difability.exception.UserNotFoundException;
 import com.ippl.difability.repository.CompanyRepository;
+import com.ippl.difability.repository.HumanResourceRepository;
 import com.ippl.difability.repository.UserRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
+@Transactional
 public class CompanyService {
-    private final ActivityLogService activityLogService;
+    private final LogService logService;
     private final CompanyRepository companyRepository;
+    private final HumanResourceRepository humanResourceRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public HrAccountResponse generateHr(String identifier){
-        Company company = companyRepository.findByIdentifier(identifier)
-            .orElseThrow(() -> new ResourceNotFoundException("Company not found."));
+    public HrCredentialResponse generateHrAccount(String username) {
+        Company company = companyRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
 
-        String username = generateUsername(company.getIdentifier());
-        String rawPassword = generatePassword();
+        String newUsername = generateUsername(username);
+        String newPassword = generatePassword();
 
         HumanResource humanResource = new HumanResource();
-        humanResource.setIdentifier(username);
-        humanResource.setPassword(passwordEncoder.encode(rawPassword));
+        humanResource.setUsername(newUsername);
+        humanResource.setPassword(passwordEncoder.encode(newPassword));
         humanResource.setRole(Role.HUMAN_RESOURCE);
         humanResource.setCompany(company);
-        userRepository.save(humanResource);
+        humanResourceRepository.save(humanResource);
 
-        activityLogService.log(
-            company.getIdentifier(),
-            company.getRole().name(),
-            "GENERATE_HR",
-            company.getRole().name() + " generated HR account: " + username
+        logService.log(
+            username,
+            company.getRole().name(), 
+            "CREATE_HR", 
+            "Generated new HR account: " + newUsername
         );
-
-        return new HrAccountResponse(username, rawPassword, humanResource.getRole().name());
+        return new HrCredentialResponse(newUsername, newPassword);
     }
-
-    private String generateUsername(String identifier){
-        return(
-            identifier.split("@")[0] +
-            "_hr_" +
-            RandomStringUtils.secure().next(4, false, true)
-        );
+    
+    private String generateUsername(String username) {
+        boolean usernameExists;
+        String newUsername;
+        do{
+            String baseName = username.split("@")[0];
+            String uniqueId = RandomStringUtils.secure().next(6, true, true);
+            newUsername = baseName + "_hr_" + uniqueId;
+            usernameExists = !userRepository.existsByUsername(username);
+        }while(usernameExists);
+        return newUsername;
     }
-
-    private String generatePassword(){
-        String uppercaseLetters = RandomStringUtils.secure().next(2, true, false).toUpperCase();
+    
+    private String generatePassword() {
+        String upperCaseLetters = RandomStringUtils.secure().next(4, true, false).toUpperCase();
         String alphanumerics = RandomStringUtils.secure().next(8, true, true);
-        String digits = RandomStringUtils.secure().next(2, false, true);
-        return uppercaseLetters + alphanumerics + digits;
+        String digits = RandomStringUtils.secure().next(4, false, true);
+        return upperCaseLetters + alphanumerics + digits;
     }
 }
