@@ -10,6 +10,7 @@ import com.ippl.difability.enums.PublicationStatus;
 
 public record JobResponse(
     Long id,
+    Long companyId,
     String companyName,
     String companyLogoImagePath,
     String title,

@@ -25,9 +25,9 @@ public class HumanResource extends User {
     @Column(name = "full_name", length = 50)
     private String fullName;
 
+    @Column(name = "pp_image_path", length = 100)
+    private String ppImagePath;
+    
     @Column(name = "contact", length = 15)
     private String contact;
-    
-    @Column(name = "is_active", nullable = false)
-    private boolean active = true;
 }

@@ -1,4 +1,4 @@
-package com.ippl.difability.service;
+    package com.ippl.difability.service;
 
 import java.util.List;
 
@@ -18,40 +18,39 @@ import lombok.RequiredArgsConstructor;
 public class LogService {
     private final LogRepository logRepository;
 
-    public void log(String actorUsername, String actorRole, String action, String description){
+    public void log(String actorUsername, String actorRole, String action){
         Log log = new Log();
         log.setActorUsername(actorUsername);
         log.setActorRole(actorRole);
         log.setAction(action);
-        log.setDescription(description);
         logRepository.save(log);
     }
 
-    public List<LogResponse> findAllLogs(){
-        return mapList(
+    public List<LogResponse> getLogs(){
+        return mapToList(
             logRepository.findAllByOrderByCreatedAtDesc()
         );
     }
 
-    public List<LogResponse> findLogsByUsername(String username){
-        return mapList(
+    public List<LogResponse> getLogsByUsername(String username){
+        return mapToList(
             logRepository.findByActorUsernameOrderByCreatedAtDesc(username)
         );
     }
 
-    public List<LogResponse> findLogsByRole(Role role){
-        return mapList(
+    public List<LogResponse> getLogsByRole(Role role){
+        return mapToList(
             logRepository.findByActorRoleOrderByCreatedAtDesc(role.name())
         );
     }
     
-    public List<LogResponse> findLogsByAction(String action){
-        return mapList(
+    public List<LogResponse> getLogsByAction(String action){
+        return mapToList(
             logRepository.findByActionOrderByCreatedAtDesc(action)
         );
     }
     
-    private List<LogResponse> mapList(List<Log> logs) {
+    private List<LogResponse> mapToList(List<Log> logs){
         return logs.stream()
             .map(this::mapToResponse)
             .toList();
@@ -63,7 +62,6 @@ public class LogService {
             log.getActorUsername(),
             log.getActorRole(),
             log.getAction(),
-            log.getDescription(),
             log.getCreatedAt()
         );
     }

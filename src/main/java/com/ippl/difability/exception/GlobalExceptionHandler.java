@@ -109,7 +109,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
         EmailAlreadyExistsException.class,
         DuplicateApplicationException.class,
-        JobClosedException.class
+        JobClosedException.class,
+        ApplicationReviewedException.class
     })
     public ResponseEntity<ErrorResponse> handleConflict(
             RuntimeException exception, HttpServletRequest request){

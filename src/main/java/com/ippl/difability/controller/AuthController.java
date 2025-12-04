@@ -55,6 +55,6 @@ public class AuthController {
     @DeleteMapping("/session")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         CookieUtil.setJwtCookie(response, "", 0);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

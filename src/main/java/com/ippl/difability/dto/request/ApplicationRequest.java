@@ -5,6 +5,6 @@ import jakarta.validation.constraints.Size;
 
 public record ApplicationRequest(
     @NotBlank(message = "Cover letter is required.")
-    @Size(max = 500)
+    @Size(min = 3, max = 500)
     String coverLetter
 ){}

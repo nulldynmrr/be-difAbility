@@ -1,8 +1,8 @@
 package com.ippl.difability.service;
 
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+
+import org.springframework.stereotype.Service;
 
 import com.ippl.difability.enums.ApplicationStatus;
 import com.ippl.difability.enums.DisabilityType;

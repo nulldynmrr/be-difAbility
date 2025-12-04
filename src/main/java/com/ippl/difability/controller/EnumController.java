@@ -23,13 +23,13 @@ public class EnumController {
     private final EnumService enumService;
 
     @GetMapping("/application-statuses")
-    public ResponseEntity<List<ApplicationStatus>> getApplicationStatus(){
+    public ResponseEntity<List<ApplicationStatus>> getApplicationStatuses(){
         List<ApplicationStatus> applicationStatuses = enumService.getApplicationStatus();
         return ResponseEntity.ok(applicationStatuses);
     }
 
     @GetMapping("/disability-types")
-    public ResponseEntity<List<DisabilityType>> getDisabilityType(){
+    public ResponseEntity<List<DisabilityType>> getDisabilityTypes(){
         List<DisabilityType> disabilityTypes = enumService.getDisabilityTypes();
         return ResponseEntity.ok(disabilityTypes);
     }

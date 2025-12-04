@@ -19,8 +19,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Getter @Setter
 @Entity
 @Table(name = "job_seekers")
 @PrimaryKeyJoinColumn(name = "id")

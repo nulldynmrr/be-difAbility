@@ -1,19 +1,29 @@
 package com.ippl.difability.service;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ippl.difability.dto.request.CompanyProfileRequest;
 import com.ippl.difability.dto.request.HumanResourceProfileRequest;
 import com.ippl.difability.dto.request.JobSeekerProfileRequest;
-import com.ippl.difability.dto.response.UserResponse;
+import com.ippl.difability.dto.response.user.CompanyDetailResponse;
+import com.ippl.difability.dto.response.user.HumanResourceDetailResponse;
+import com.ippl.difability.dto.response.user.JobSeekerDetailResponse;
+import com.ippl.difability.dto.response.user.UserBaseResponse;
+import com.ippl.difability.dto.response.user.UserDetailsResponse;
+import com.ippl.difability.dto.response.user.UserResponse;
 import com.ippl.difability.entity.Company;
 import com.ippl.difability.entity.HumanResource;
 import com.ippl.difability.entity.JobSeeker;
 import com.ippl.difability.entity.User;
+import com.ippl.difability.enums.Role;
+import com.ippl.difability.exception.ForbiddenException;
 import com.ippl.difability.exception.IncompleteRequestException;
 import com.ippl.difability.exception.UserNotFoundException;
+import com.ippl.difability.repository.ApplicationRepository;
 import com.ippl.difability.repository.CompanyRepository;
 import com.ippl.difability.repository.HumanResourceRepository;
 import com.ippl.difability.repository.JobSeekerRepository;
@@ -30,11 +40,72 @@ public class UserService {
     private final JobSeekerRepository jobSeekerRepository;
     private final CompanyRepository companyRepository;
     private final HumanResourceRepository humanResourceRepository;
+    private final ApplicationRepository applicationRepository;
     
-    public List<UserResponse> getAllUsers(){
-        return userRepository.findAllByOrderByCreatedAtDesc().stream()
-            .map(this::mapToResponse)
+    public List<UserResponse> getUsers(){
+        return userRepository.findAllByOrderByCreatedAtDesc()
+            .stream()
+            .map(user -> new UserResponse(
+                buildBase(user),
+                buildDetails(user)
+            ))
             .collect(Collectors.toList());
+    }
+
+    public void deleteUser(String username, Long userId){
+        User admin = userRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+
+        User user = userRepository.findById(userId)
+            .orElseThrow(UserNotFoundException::new);
+
+        userRepository.delete(user);
+        
+        logService.log(
+            username,
+            admin.getRole().name(),
+            "DELETE_USER"
+        );
+    }
+
+    public UserResponse getUser(String requesterUsername, Long targetId){
+        User requester = userRepository.findByUsername(requesterUsername)
+            .orElseThrow(UserNotFoundException::new);
+
+        Role requesterRole = requester.getRole();
+        
+        User targetUser = userRepository.findById(targetId)
+            .orElseThrow(UserNotFoundException::new);
+        
+        UserBaseResponse base = null;
+        if(targetUser instanceof Company company){
+            UserDetailsResponse details = buildDetails(company);
+            return new UserResponse(base, details);
+        }
+        UserDetailsResponse details;
+
+        switch(requesterRole){
+            case ADMIN ->{
+                base = buildBase(targetUser);
+                details = buildDetails(targetUser);
+            }
+            case HUMAN_RESOURCE ->{
+                HumanResource tempHr = (HumanResource) requester;
+
+                boolean hasRelationship = applicationRepository.existsByJobSeekerIdAndJobCompanyId(
+                    targetUser.getId(),
+                    tempHr.getCompany().getId()
+                );
+
+                if(!hasRelationship){
+                    throw new ForbiddenException();
+                }
+                details = buildDetails(targetUser);
+            }
+            default ->
+                throw new ForbiddenException();
+        }
+        return new UserResponse(base, details);
     }
 
     public void updateJobSeekerProfile(String username, JobSeekerProfileRequest request){
@@ -46,11 +117,10 @@ public class UserService {
         logService.log(
             username,
             jobSeeker.getRole().name(),
-            "UPDATE_PROFILE",
-            username + " updated their profile."
+            "UPDATE_PROFILE"
         );
     }
-
+    
     public void updateCompanyProfile(String username, CompanyProfileRequest request){
         Company company = companyRepository.findByUsername(username)
             .orElseThrow(UserNotFoundException::new);
@@ -60,8 +130,7 @@ public class UserService {
         logService.log(
             username,
             company.getRole().name(),
-            "UPDATE_PROFILE",
-            username + " updated their profile."
+            "UPDATE_PROFILE"
         );
     }
 
@@ -74,13 +143,12 @@ public class UserService {
         logService.log(
             username,
             humanResource.getRole().name(),
-            "UPDATE_PROFILE",
-            username + " updated their profile."
+            "UPDATE_PROFILE"
         );
     }
 
-    private UserResponse mapToResponse(User user){
-        return new UserResponse(
+    private UserBaseResponse buildBase(User user){
+        return new UserBaseResponse(
             user.getId(),
             user.getUsername(),
             user.getRole(),
@@ -89,6 +157,50 @@ public class UserService {
             user.getUpdatedAt()
         );
     }
+
+    private UserDetailsResponse buildDetails(User user) {
+        return switch (user.getRole()) {
+            case ADMIN ->
+                null;
+            case JOB_SEEKER ->{
+                JobSeeker jobSeeker = (JobSeeker) user;
+                yield new JobSeekerDetailResponse(
+                    jobSeeker.getFullName(),
+                    jobSeeker.getAbout(),
+                    jobSeeker.getAddress(),
+                    jobSeeker.getDisabilityType(),
+                    jobSeeker.getSkills(),
+                    jobSeeker.getCertificationFilePaths(),
+                    jobSeeker.getEducationLevel(),
+                    jobSeeker.getPpImagePath(),
+                    jobSeeker.getCvDocumentPath()
+                );
+            }
+            case HUMAN_RESOURCE ->{
+                HumanResource humanResource = (HumanResource) user;
+                yield new HumanResourceDetailResponse(
+                    humanResource.getFullName(),
+                    humanResource.getContact(),
+                    humanResource.getPpImagePath()
+                );
+            }
+            case COMPANY ->{
+                Company company = (Company) user;
+                yield new CompanyDetailResponse(
+                    company.getCompanyName(),
+                    company.getCompanyDescription(),
+                    company.getAddress(),
+                    company.getIndustryType(),
+                    company.getWebsiteUrl(),
+                    company.getLogoImagePath()
+                );
+            }
+            default -> 
+                throw new ForbiddenException();
+        };
+    }
+
+    
     private void validateJobSeekerInput(JobSeeker jobSeeker, JobSeekerProfileRequest request){
         if(!jobSeeker.isProfileCompleted()){
             if(request.fullName() == null

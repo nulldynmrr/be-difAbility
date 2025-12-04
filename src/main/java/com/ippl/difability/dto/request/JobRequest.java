@@ -12,10 +12,10 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 public record JobRequest(
-    @Size(max = 50)
+    @Size(min = 3, max = 50)
     String title,
 
-    @Size(max = 1000)
+    @Size(min = 10, max = 500)
     String jobDescription,
 
     @Digits(integer = 12, fraction = 2)

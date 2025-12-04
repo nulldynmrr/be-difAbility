@@ -57,11 +57,11 @@ public class AuthService {
         logService.log(
             user.getUsername(),
             user.getRole().name(),
-            "REGISTER",
-            "Registered new account"
+            "REGISTER"
         );
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
+
         return new AuthResponse(
             token,
             user.getId(),
@@ -82,11 +82,11 @@ public class AuthService {
         logService.log(
             user.getUsername(),
             user.getRole().name(),
-            "LOGIN",
-            "User logged in"
+            "LOGIN"
         );
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
+
         return new AuthResponse(
             token,
             user.getId(),
@@ -111,11 +111,11 @@ public class AuthService {
         logService.log(
             admin.getUsername(),
             admin.getRole().name(),
-            "LOGIN_ADMIN",
-            "Admin logged in with OTP"
+            "LOGIN_ADMIN"
         );
 
         String token = jwtUtil.generateToken(admin.getUsername(), admin.getRole().name());
+        
         return new AuthResponse(
             token,
             admin.getId(),

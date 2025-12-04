@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record ApplicationReviewRequest(
-    @Size(max = 500)
+    @Size(min = 10, max = 500)
     String hrNotes,
 
     @NotNull

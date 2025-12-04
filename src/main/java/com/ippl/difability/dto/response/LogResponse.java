@@ -7,6 +7,5 @@ public record LogResponse(
     String actorUsername,
     String actorRole,
     String actorAction,
-    String description,
     LocalDateTime createdAt
 ){}

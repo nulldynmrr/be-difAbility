@@ -6,18 +6,18 @@ import org.springframework.stereotype.Service;
 
 import com.ippl.difability.dto.request.JobRequest;
 import com.ippl.difability.dto.response.JobResponse;
+import com.ippl.difability.entity.Company;
 import com.ippl.difability.entity.HumanResource;
 import com.ippl.difability.entity.Job;
 import com.ippl.difability.entity.JobSeeker;
 import com.ippl.difability.entity.User;
-import com.ippl.difability.enums.DisabilityType;
 import com.ippl.difability.enums.PublicationStatus;
 import com.ippl.difability.enums.Role;
 import com.ippl.difability.exception.ForbiddenException;
+import com.ippl.difability.exception.JobNotFoundException;
 import com.ippl.difability.exception.UserNotFoundException;
 import com.ippl.difability.repository.HumanResourceRepository;
 import com.ippl.difability.repository.JobRepository;
-import com.ippl.difability.repository.JobSeekerRepository;
 import com.ippl.difability.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -30,8 +30,44 @@ public class JobService {
     private final LogService logService;
     private final UserRepository userRepository;
     private final HumanResourceRepository humanResourceRepository;
-    private final JobSeekerRepository jobSeekerRepository;
     private final JobRepository jobRepository;
+
+    public JobResponse getJob(Long jobId){
+        Job job = jobRepository.findById(jobId)
+            .orElseThrow(JobNotFoundException::new);
+
+        return mapToResponse(job);
+    }
+
+    public void deletejob(String username, Long jobId){
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+        
+        Job job = jobRepository.findById(jobId)
+            .orElseThrow(JobNotFoundException::new);
+        
+        Role role = user.getRole();
+        Long companyId = switch (role){
+        case COMPANY -> 
+            ((Company) user).getId();
+        case HUMAN_RESOURCE -> 
+            ((HumanResource) user).getCompany().getId();
+        default -> 
+            throw new ForbiddenException();
+        };
+
+        if(!companyId.equals(job.getCompany().getId())){
+            throw new ForbiddenException();
+        }
+
+        jobRepository.delete(job);
+
+        logService.log(
+            username,
+            user.getRole().name(),
+            "DELETE_JOB"
+        );
+    }
 
     public List<JobResponse> getJobs(String username){
         User user = userRepository.findByUsername(username)
@@ -41,17 +77,21 @@ public class JobService {
         List<Job> jobs = switch(role){
             case ADMIN ->
                 jobRepository.findAllByOrderByCreatedAtDesc();
-            case JOB_SEEKER ->
-                jobRepository.findByPublicationStatusAndCompatibleDisabilitiesContaining(
+            case JOB_SEEKER ->{
+                JobSeeker jobSeeker = (JobSeeker) user;
+
+                yield jobRepository.findByPublicationStatusAndCompatibleDisabilitiesContaining(
                     PublicationStatus.OPEN,
-                    getJobSeekerDisability(username)
+                    jobSeeker.getDisabilityType()
                 );
+            }
             case COMPANY, HUMAN_RESOURCE ->
                 jobRepository.findByCompanyUsername(username);
             default ->
                 throw new ForbiddenException();
         };
-        return mapList(jobs);
+
+        return mapToList(jobs);
     }
 
     public void createJob(String username, JobRequest request){
@@ -72,13 +112,11 @@ public class JobService {
         logService.log(
             username,
             humanResource.getRole().name(),
-            "CREATE_JOB",
-            "Created new job " + job.getTitle()
+            "CREATE_JOB"
         );
     }
 
-
-    private List<JobResponse> mapList(List<Job> jobs){
+    private List<JobResponse> mapToList(List<Job> jobs){
     return jobs.stream()
             .map(this::mapToResponse)
             .toList();
@@ -87,6 +125,7 @@ public class JobService {
     private JobResponse mapToResponse(Job job){
         return new JobResponse(
             job.getId(),
+            job.getCompany().getId(),
             job.getCompany().getCompanyName(),
             job.getCompany().getLogoImagePath(),
             job.getTitle(),
@@ -98,12 +137,5 @@ public class JobService {
             job.getRegistrationDeadline(),
             job.getPublicationStatus()
         );
-    }
-
-    private DisabilityType getJobSeekerDisability(String username){
-    JobSeeker jobSeeker = jobSeekerRepository.findByUsername(username)
-            .orElseThrow(UserNotFoundException::new);
-            
-    return jobSeeker.getDisabilityType();
     }
 }

@@ -26,7 +26,7 @@ public class CompanyService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public HrCredentialResponse generateHrAccount(String username) {
+    public HrCredentialResponse generateHrAccount(String username){
         Company company = companyRepository.findByUsername(username)
             .orElseThrow(UserNotFoundException::new);
 
@@ -43,21 +43,23 @@ public class CompanyService {
         logService.log(
             username,
             company.getRole().name(), 
-            "CREATE_HR", 
-            "Generated new HR account: " + newUsername
+            "CREATE_HR"
         );
+
         return new HrCredentialResponse(newUsername, newPassword);
     }
     
-    private String generateUsername(String username) {
+    private String generateUsername(String username){
         boolean usernameExists;
         String newUsername;
+
         do{
             String baseName = username.split("@")[0];
             String uniqueId = RandomStringUtils.secure().next(6, true, true);
             newUsername = baseName + "_hr_" + uniqueId;
             usernameExists = !userRepository.existsByUsername(username);
         }while(usernameExists);
+
         return newUsername;
     }
     
@@ -65,6 +67,7 @@ public class CompanyService {
         String upperCaseLetters = RandomStringUtils.secure().next(4, true, false).toUpperCase();
         String alphanumerics = RandomStringUtils.secure().next(8, true, true);
         String digits = RandomStringUtils.secure().next(4, false, true);
+        
         return upperCaseLetters + alphanumerics + digits;
     }
 }
