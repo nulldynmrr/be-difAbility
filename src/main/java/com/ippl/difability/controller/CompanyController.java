@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class CompanyController {
     private final CompanyService companyService;
 
-    @PostMapping("/users/me/humanresources")
+    @PostMapping("/companies/me/humanresources")
     @PreAuthorize("hasAuthority('COMPANY')")
     public ResponseEntity<HrCredentialResponse> generateHrAccount(
             Principal principal){

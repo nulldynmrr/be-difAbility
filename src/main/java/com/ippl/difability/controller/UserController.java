@@ -24,28 +24,19 @@ import lombok.RequiredArgsConstructor;
 
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
-    @GetMapping
+    @GetMapping("/users")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<UserResponse>> getUsers(){
         List<UserResponse> users = userService.getUsers();
         return ResponseEntity.ok(users);
     }
 
-    @DeleteMapping("/{userId}")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Void> deleteUser(
-            @PathVariable Long userId,
-            Principal principal){
-        userService.deleteUser(principal.getName(), userId);
-        return ResponseEntity.noContent().build();
-    }
-    
-    @GetMapping("/{userId}")
+    @GetMapping("/users/{userId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponse> getUser(
             @PathVariable Long userId,
@@ -54,6 +45,15 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @DeleteMapping("/users/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long userId,
+            Principal principal){
+        userService.deleteUser(principal.getName(), userId);
+        return ResponseEntity.noContent().build();
+    }
+    
     @PatchMapping("/jobseekers/me/profile")
     @PreAuthorize("hasAuthority('JOB_SEEKER')")
     public ResponseEntity<Void> updateJobSeekerProfile(
@@ -72,7 +72,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("humanresources/me/profile")
+    @PatchMapping("/humanresources/me/profile")
     @PreAuthorize("hasAuthority('HUMAN_RESOURCE')")
     public ResponseEntity<Void> updateHumanResourceProfile(
             @Valid @RequestBody HumanResourceProfileRequest request,
