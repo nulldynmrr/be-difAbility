@@ -1,11 +1,14 @@
 package com.ippl.difability.service;
 
+import java.util.List;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ippl.difability.dto.response.HrCredentialResponse;
+import com.ippl.difability.dto.response.user.HumanResourceDetailResponse;
 import com.ippl.difability.entity.Company;
 import com.ippl.difability.entity.HumanResource;
 import com.ippl.difability.enums.Role;
@@ -49,6 +52,18 @@ public class CompanyService {
         return new HrCredentialResponse(newUsername, newPassword);
     }
     
+    public List<HumanResourceDetailResponse> getHumanResources(String username) {
+        Company company = companyRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+
+        return humanResourceRepository.findAllByCompanyId(company.getId()).stream()
+            .map(humanResource -> new HumanResourceDetailResponse(
+                humanResource.getFullName(),
+                humanResource.getContact(),
+                humanResource.getPpImagePath()
+            )).toList();
+    }
+
     private String generateUsername(String username){
         boolean usernameExists;
         String newUsername;
@@ -63,7 +78,7 @@ public class CompanyService {
         return newUsername;
     }
     
-    private String generatePassword() {
+    private String generatePassword(){
         String upperCaseLetters = RandomStringUtils.secure().next(4, true, false).toUpperCase();
         String alphanumerics = RandomStringUtils.secure().next(8, true, true);
         String digits = RandomStringUtils.secure().next(4, false, true);

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record AdminLoginRequest(
-    @NotBlank(message = "Username/Email is required")
+    @NotBlank(message = "Username is required")
     String username,
 
     @NotBlank(message = "Password is required")

@@ -41,7 +41,7 @@ public class Job {
     @JoinColumn(name = "company_id", nullable = false)
     @JsonBackReference
     private Company company;
-
+    
     @Column(name = "title", nullable = false, length = 50)
     private String title;
 

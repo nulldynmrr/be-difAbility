@@ -26,6 +26,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request){
+        String path = request.getServletPath();
+        return path.startsWith("/api/auth/");
+    }
+    
+    @Override
     protected void doFilterInternal(
         @NonNull HttpServletRequest request, 
         @NonNull HttpServletResponse response, 
@@ -46,11 +52,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return cookie.getValue();
         }
 
-        // Auth Bearer (cara lama)
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
-        }
+        // // Auth Bearer (cara lama)
+        // String authHeader = request.getHeader("Authorization");
+        // if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        //     return authHeader.substring(7);
+        // }
 
         return null;
     }
