@@ -103,7 +103,8 @@
   "youtubeUrl": "...",
   "instagramUrl": "...",
   "twitterUrl": "...",
-  "logoImgPath": "/..."
+  "logoImgPath": "/...",
+  "agreeToTerms": "..."
 }
 ```
 
@@ -146,7 +147,7 @@
 
 ```json
 {
-  "status": "Accepted/Declined",
+  "status": "...",
   "hrNotes": "..."
 }
 ```

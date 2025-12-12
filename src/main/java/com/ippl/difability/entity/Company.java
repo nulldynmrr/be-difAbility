@@ -47,6 +47,9 @@ public class Company extends User {
     @Column(name = "logo_image_path", length = 100)
     private String logoImagePath;
 
+    @Column(name = "agree_to_terms", length = 10)
+    private Boolean agreeToTerms = false;
+
     // @OneToMany(
     //     mappedBy = "company", cascade = CascadeType.ALL,
     //     orphanRemoval = true, fetch = FetchType.LAZY

@@ -268,8 +268,8 @@ public class UserService {
                     || request.companyDescription() == null
                     || request.address() == null
                     || request.industryType() == null
-                    || request.websiteUrl() == null
-                    || request.logoImagePath() == null){
+                    || request.logoImagePath() == null
+                    || !request.agreeToTerms()){
                 throw new IncompleteRequestException("Missing required fields.");
             }
             company.setCompanyName(request.companyName());
@@ -277,7 +277,12 @@ public class UserService {
             company.setAddress(request.address());
             company.setIndustryType(request.industryType());
             company.setWebsiteUrl(request.websiteUrl());
+            company.setLinkedinUrl(request.linkedinUrl());
+            company.setYoutubeUrl(request.youtubeUrl());
+            company.setInstagramUrl(request.instagramUrl());
+            company.setTwitterUrl(request.twitterUrl());
             company.setLogoImagePath(request.logoImagePath());
+            company.setAgreeToTerms(request.agreeToTerms());
             company.setProfileCompleted(true);
             return;
         }
@@ -291,6 +296,7 @@ public class UserService {
         if(request.instagramUrl() != null) company.setInstagramUrl(request.instagramUrl());
         if(request.twitterUrl() != null) company.setTwitterUrl(request.twitterUrl());
         if(request.logoImagePath() != null) company.setLogoImagePath(request.logoImagePath());
+        if(request.agreeToTerms() != null) company.setAgreeToTerms(request.agreeToTerms());
     }
 
     private void validateHumanResourceInput(HumanResource humanResource, HumanResourceProfileRequest request){

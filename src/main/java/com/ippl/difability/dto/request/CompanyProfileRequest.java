@@ -33,5 +33,7 @@ public record CompanyProfileRequest(
     @URL
     String twitterUrl,
     
-    String logoImagePath
+    String logoImagePath,
+
+    Boolean agreeToTerms
 ){}
