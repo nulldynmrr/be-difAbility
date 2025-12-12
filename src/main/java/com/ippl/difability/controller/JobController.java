@@ -42,7 +42,7 @@ public class JobController {
     }
     
     @PostMapping
-    @PreAuthorize("hasAuthority('HUMAN_RESOURCE')")
+    @PreAuthorize("hasAuthority('HUMAN_RESOURCE') or hasAuthority('COMPANY')")
     public ResponseEntity<Void> createJob(
             @Valid @RequestBody JobRequest request,
             Principal principal){

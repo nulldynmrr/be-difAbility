@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -12,11 +13,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.core.Authentication;
 
 import com.ippl.difability.dto.request.CompanyProfileRequest;
 import com.ippl.difability.dto.request.HumanResourceProfileRequest;
 import com.ippl.difability.dto.request.JobSeekerProfileRequest;
+import com.ippl.difability.dto.response.user.CompanyDetailResponse;
 import com.ippl.difability.dto.response.user.JobSeekerDetailResponse;
 import com.ippl.difability.dto.response.user.UserResponse;
 import com.ippl.difability.service.UserService;
@@ -70,6 +71,13 @@ public class UserController {
             Principal principal){
         userService.updateJobSeekerProfile(principal.getName(), request);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/companies/me/profile")
+    @PreAuthorize("hasAuthority('COMPANY')")
+    public ResponseEntity<CompanyDetailResponse> getProfileCompany(Authentication auth){
+        CompanyDetailResponse profile = userService.getProfileCompany(auth.getName());
+        return ResponseEntity.ok(profile);
     }
 
     @PatchMapping("/companies/me/profile")

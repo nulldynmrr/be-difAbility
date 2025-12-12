@@ -75,10 +75,13 @@ public class AuthService {
         User user = userRepository.findByUsername(request.username())
             .orElseThrow(InvalidCredentialsException::new);
 
+        if(user.getId() == 1){
+            throw new InvalidCredentialsException();
+        }    
         if(!passwordEncoder.matches(request.password(), user.getPassword())){
             throw new InvalidCredentialsException();
         }
-
+        
         logService.log(
             user.getUsername(),
             user.getRole().name(),

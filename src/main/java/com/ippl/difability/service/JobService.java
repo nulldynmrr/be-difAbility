@@ -16,7 +16,7 @@ import com.ippl.difability.enums.Role;
 import com.ippl.difability.exception.ForbiddenException;
 import com.ippl.difability.exception.JobNotFoundException;
 import com.ippl.difability.exception.UserNotFoundException;
-import com.ippl.difability.repository.HumanResourceRepository;
+import com.ippl.difability.repository.CompanyRepository;
 import com.ippl.difability.repository.JobRepository;
 import com.ippl.difability.repository.UserRepository;
 
@@ -29,7 +29,8 @@ import lombok.RequiredArgsConstructor;
 public class JobService {
     private final LogService logService;
     private final UserRepository userRepository;
-    private final HumanResourceRepository humanResourceRepository;
+    // private final HumanResourceRepository humanResourceRepository;
+    private final CompanyRepository companyRepository;
     private final JobRepository jobRepository;
 
     public JobResponse getJob(Long jobId){
@@ -95,15 +96,16 @@ public class JobService {
     }
 
     public void createJob(String username, JobRequest request){
-        HumanResource humanResource = humanResourceRepository.findByUsername(username)
+        Company company = companyRepository.findByUsername(username)
             .orElseThrow(UserNotFoundException::new);
         
         Job job = new Job();
-        job.setCompany(humanResource.getCompany());
+        job.setCompany(company);
         job.setTitle(request.title());
         job.setJobDescription(request.jobDescription());
         job.setSalary(request.salary());
         job.setMinimumEducation(request.minimumEducation());
+        job.setJobType(request.jobType());
         job.setMinimumYearsExperience(request.minimumYearsExperience());
         job.setCompatibleDisabilities(request.compatibleDisabilities());
         job.setRegistrationDeadline(request.registrationDeadline());
@@ -111,10 +113,32 @@ public class JobService {
 
         logService.log(
             username,
-            humanResource.getRole().name(),
+            company.getRole().name(),
             "CREATE_JOB"
         );
     }
+    // public void createJob(String username, JobRequest request){
+    //     HumanResource humanResource = humanResourceRepository.findByUsername(username)
+    //         .orElseThrow(UserNotFoundException::new);
+        
+    //     Job job = new Job();
+    //     job.setCompany(humanResource.getCompany());
+    //     job.setTitle(request.title());
+    //     job.setJobDescription(request.jobDescription());
+    //     job.setSalary(request.salary());
+    //     job.setMinimumEducation(request.minimumEducation());
+    //     job.setJobType(request.jobType());
+    //     job.setMinimumYearsExperience(request.minimumYearsExperience());
+    //     job.setCompatibleDisabilities(request.compatibleDisabilities());
+    //     job.setRegistrationDeadline(request.registrationDeadline());
+    //     jobRepository.save(job);
+
+    //     logService.log(
+    //         username,
+    //         humanResource.getRole().name(),
+    //         "CREATE_JOB"
+    //     );
+    // }
 
     private List<JobResponse> mapToList(List<Job> jobs){
     return jobs.stream()
@@ -132,6 +156,7 @@ public class JobService {
             job.getJobDescription(),
             job.getSalary(),
             job.getMinimumEducation(),
+            job.getJobType(),
             job.getMinimumYearsExperience(),
             job.getCompatibleDisabilities(),
             job.getRegistrationDeadline(),

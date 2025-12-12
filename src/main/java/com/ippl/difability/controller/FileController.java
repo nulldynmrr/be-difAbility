@@ -25,13 +25,11 @@ public class FileController {
     private final FileStorageService fileStorageService;
 
     @PostMapping("/upload/image")
-    @PreAuthorize("isAuthenticated()")
     public String uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
         return fileStorageService.save(file, "images");
     }
 
     @PostMapping("/upload/document")
-    @PreAuthorize("isAuthenticated()")
     public String uploadDocument(@RequestParam("file") MultipartFile file) throws IOException {
         return fileStorageService.save(file, "documents");
     }

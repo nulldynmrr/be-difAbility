@@ -11,6 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ippl.difability.enums.DisabilityType;
 import com.ippl.difability.enums.EducationLevel;
+import com.ippl.difability.enums.JobType;
 import com.ippl.difability.enums.PublicationStatus;
 
 import jakarta.persistence.CollectionTable;
@@ -71,6 +72,10 @@ public class Job {
     @Enumerated(EnumType.STRING)
     @Column(name = "publication_status", nullable = false, length = 10)
     private PublicationStatus publicationStatus = PublicationStatus.OPEN;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "job_type", nullable = false, length = 10)
+    private JobType jobType;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

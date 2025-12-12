@@ -126,10 +126,30 @@ public class UserService {
             jobSeeker.getCvDocumentPath()
         );
     }
+
+    public CompanyDetailResponse getProfileCompany(String username){
+        Company company = companyRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+
+        return new CompanyDetailResponse(
+            company.getCompanyName(),
+            company.getCompanyDescription(),
+            company.getAddress(),
+            company.getIndustryType(),
+            company.getWebsiteUrl(),
+            company.getLinkedinUrl(),
+            company.getYoutubeUrl(),
+            company.getInstagramUrl(),
+            company.getTwitterUrl(),
+            company.getLogoImagePath()
+        );
+    }
+    
     
     public void updateJobSeekerProfile(String username, JobSeekerProfileRequest request){
         JobSeeker jobSeeker = jobSeekerRepository.findByUsername(username)
             .orElseThrow(UserNotFoundException::new);
+            
         validateJobSeekerInput(jobSeeker, request);
         jobSeekerRepository.save(jobSeeker);
 
@@ -213,6 +233,10 @@ public class UserService {
                     company.getAddress(),
                     company.getIndustryType(),
                     company.getWebsiteUrl(),
+                    company.getLinkedinUrl(),
+                    company.getYoutubeUrl(),
+                    company.getInstagramUrl(),
+                    company.getTwitterUrl(),
                     company.getLogoImagePath()
                 );
             }

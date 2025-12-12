@@ -8,5 +8,9 @@ public record CompanyDetailResponse(
     String address,
     IndustryType industryType,
     String websiteUrl,
+    String linkedinUrl,
+    String youtubeUrl,
+    String instagramUrl,
+    String twitterUrl,
     String logoImagePath
 ) implements UserDetailsResponse{}
