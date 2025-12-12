@@ -108,6 +108,25 @@ public class UserService {
         return new UserResponse(base, details);
     }
 
+    public JobSeekerDetailResponse getProfileJobSeeker(String username){
+        JobSeeker jobSeeker = jobSeekerRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+
+        return new JobSeekerDetailResponse(
+            jobSeeker.getFullName(),
+            jobSeeker.getAbout(),
+            jobSeeker.getAddress(),
+            jobSeeker.getDisabilityType(),
+            jobSeeker.getSkills(),
+            jobSeeker.getCertificationFilePaths(),
+            jobSeeker.getEducationLevel(),
+            jobSeeker.getAcademicYear(),
+            jobSeeker.getJobType(),
+            jobSeeker.getPpImagePath(),
+            jobSeeker.getCvDocumentPath()
+        );
+    }
+    
     public void updateJobSeekerProfile(String username, JobSeekerProfileRequest request){
         JobSeeker jobSeeker = jobSeekerRepository.findByUsername(username)
             .orElseThrow(UserNotFoundException::new);
@@ -172,6 +191,8 @@ public class UserService {
                     jobSeeker.getSkills(),
                     jobSeeker.getCertificationFilePaths(),
                     jobSeeker.getEducationLevel(),
+                    jobSeeker.getAcademicYear(),
+                    jobSeeker.getJobType(),
                     jobSeeker.getPpImagePath(),
                     jobSeeker.getCvDocumentPath()
                 );
@@ -209,6 +230,8 @@ public class UserService {
                 || request.disabilityType() == null
                 || request.skills() == null
                 || request.educationLevel() == null
+                || request.academicYear() == null
+                || request.jobType() == null
                 || request.ppImagePath() == null
                 || request.cvDocumentPath() == null){
                 throw new IncompleteRequestException("Missing required fields.");
@@ -219,6 +242,8 @@ public class UserService {
             jobSeeker.setDisabilityType(request.disabilityType());
             jobSeeker.setSkills(request.skills());
             jobSeeker.setEducationLevel(request.educationLevel());
+            jobSeeker.setAcademicYear(request.academicYear());
+            jobSeeker.setJobType(request.jobType());
             jobSeeker.setPpImagePath(request.ppImagePath());
             jobSeeker.setCvDocumentPath(request.cvDocumentPath());
             jobSeeker.setCertificationFilePaths(request.certificationFilePaths());
@@ -231,6 +256,7 @@ public class UserService {
         if(request.disabilityType() != null) jobSeeker.setDisabilityType(request.disabilityType());
         if(request.skills() != null) jobSeeker.setSkills(request.skills());
         if(request.educationLevel() != null) jobSeeker.setEducationLevel(request.educationLevel());
+        if(request.academicYear() != null) jobSeeker.setAcademicYear(request.academicYear());
         if(request.ppImagePath() != null) jobSeeker.setPpImagePath(request.ppImagePath());
         if(request.cvDocumentPath() != null) jobSeeker.setCvDocumentPath(request.cvDocumentPath());
         if(request.certificationFilePaths() != null) jobSeeker.setCertificationFilePaths(request.certificationFilePaths());
@@ -260,6 +286,10 @@ public class UserService {
         if(request.address() != null) company.setAddress(request.address());
         if(request.industryType() != null) company.setIndustryType(request.industryType());
         if(request.websiteUrl() != null) company.setWebsiteUrl(request.websiteUrl());
+        if(request.linkedinUrl() != null) company.setLinkedinUrl(request.linkedinUrl());
+        if(request.youtubeUrl() != null) company.setYoutubeUrl(request.youtubeUrl());
+        if(request.instagramUrl() != null) company.setInstagramUrl(request.instagramUrl());
+        if(request.twitterUrl() != null) company.setTwitterUrl(request.twitterUrl());
         if(request.logoImagePath() != null) company.setLogoImagePath(request.logoImagePath());
     }
 

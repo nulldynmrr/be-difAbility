@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
 
 import com.ippl.difability.dto.request.CompanyProfileRequest;
 import com.ippl.difability.dto.request.HumanResourceProfileRequest;
 import com.ippl.difability.dto.request.JobSeekerProfileRequest;
+import com.ippl.difability.dto.response.user.JobSeekerDetailResponse;
 import com.ippl.difability.dto.response.user.UserResponse;
 import com.ippl.difability.service.UserService;
 
@@ -53,7 +55,14 @@ public class UserController {
         userService.deleteUser(principal.getName(), userId);
         return ResponseEntity.noContent().build();
     }
-    
+
+    @GetMapping("/jobseekers/me/profile")
+    @PreAuthorize("hasAuthority('JOB_SEEKER')")
+    public ResponseEntity<JobSeekerDetailResponse> getProfileJobSeeker(Authentication auth){
+        JobSeekerDetailResponse profile = userService.getProfileJobSeeker(auth.getName());
+        return ResponseEntity.ok(profile);
+    }
+
     @PatchMapping("/jobseekers/me/profile")
     @PreAuthorize("hasAuthority('JOB_SEEKER')")
     public ResponseEntity<Void> updateJobSeekerProfile(

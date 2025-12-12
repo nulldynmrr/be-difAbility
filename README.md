@@ -13,7 +13,7 @@
 {
   "email": "...",
   "password": "..."
-  "role": "JOB_SEEKER/COMPANY"
+  "role": "Job Seeker/Company"
 }
 ```
 
@@ -27,7 +27,7 @@
 
 ```json
 {
-  "identifier": "email/username",
+  "username": "...",
   "password": "..."
 }
 ```
@@ -41,7 +41,7 @@
 ```json
 {
   "email": "admin@difability.com",
-  "password": "Admin1234",
+  "password": "Admin123",
   "otp": "..."
 }
 ```
@@ -77,9 +77,11 @@
   "name": "...",
   "about": "...",
   "address": "...",
-  "disabilityType": "Visual/Hearing/Mobility/Cognitive",
+  "disabilityType": "...",
   "skills": ["...", "...", "..."],
   "educationLevel": "...",
+  "academicYear": "...",
+  "jobType": "...",
   "ppImgPath": "/...",
   "cvFilePath": "/...",
   "certifFilePaths": ["/...", "/..."]
@@ -95,8 +97,12 @@
   "name": "...",
   "description": "...",
   "address": "...",
-  "industryType": "Technology/Healthcare/Education/Finance/E-Commerce/Media/Others",
+  "industryType": "...",
   "websiteUrl": "...",
+  "linkedinUrl": "...",
+  "youtubeUrl": "...",
+  "instagramUrl": "...",
+  "twitterUrl": "...",
   "logoImgPath": "/..."
 }
 ```
@@ -110,7 +116,7 @@
   "name": "...",
   "description": "...",
   "address": "...",
-  "industryType": "Technology/Healthcare/Education/Finance/E-Commerce/Media/Others",
+  "industryType": "...",
   "websiteUrl": "...",
   "logoImgPath": "/..."
 }
@@ -186,9 +192,9 @@
   "title": "...",
   "description": "...",
   "salary": 1000,
-  "minimumEducation": "High School/College Student/Bachelor/Master/Doctorate",
+  "minimumEducation": "...",
   "minimumYearsExperience": 1,
-  "compatibleDisabilities": ["Visual/Hearing/Mobility/Cognitive", "..."],
+  "compatibleDisabilities": ["...", "..."],
   "registrationDeadline": "2025-12-31T23:59:59",
   "publicationStatus": "Open"
 }
@@ -246,22 +252,38 @@ type: "file" - pdf
 
 ## ENUM
 
-### Disability Types
+### Application Statuses
+
+Under Review | Accepted | Declined
 
 **GET** /api/enums/application-statuses
 
-### Industry Types
+### Disability Types
 
-**GET** / api/enums/disability-types
+Visual | Hearing | Mobility | Cognitive
+
+**GET** /api/enums/disability-types
 
 ### Education Levels
 
-**GET** / api/enums/education-levels
+High School | College Student | Bachelor | Master | Doctorate
 
-### Application Statuses
+**GET** /api/enums/education-levels
 
-**GET** / api/enums/application-statuses
+### Industry Types
+
+Technology | Healthcare | Education | Finance | E-Commerce | Media | Others
+
+**GET** /api/enums/industry-types
+
+### Job Types
+
+Full Time | Freelance | Contract | Remote | Internship
+
+**GET** /api/enums/job-types
 
 ### Publication Statuses
 
-**GET** / api/enums/publication-statuses
+Open | Closed
+
+**GET** /api/enums/publication-statuses

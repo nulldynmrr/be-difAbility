@@ -4,11 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.ippl.difability.enums.ApplicationStatus;
-import com.ippl.difability.enums.DisabilityType;
-import com.ippl.difability.enums.EducationLevel;
-import com.ippl.difability.enums.IndustryType;
-import com.ippl.difability.enums.PublicationStatus;
+import com.ippl.difability.enums.*;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,5 +31,9 @@ public class EnumService {
     
     public List<PublicationStatus> getPublicationStatuses(){
         return List.of(PublicationStatus.values());
+    }
+
+    public List<JobType> getJobTypes(){
+        return List.of(JobType.values());
     }
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.ippl.difability.enums.DisabilityType;
 import com.ippl.difability.enums.EducationLevel;
+import com.ippl.difability.enums.JobType;
 
 public record JobSeekerDetailResponse(
     String fullname,
@@ -13,6 +14,8 @@ public record JobSeekerDetailResponse(
     List<String> skills,
     List<String> certificationFilePaths,
     EducationLevel educationLevel,
+    String academicYear,
+    JobType jobType,
     String ppImagePath,
     String cvDocumentPath 
 ) implements UserDetailsResponse {}

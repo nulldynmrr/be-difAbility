@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.ippl.difability.enums.DisabilityType;
 import com.ippl.difability.enums.EducationLevel;
+import com.ippl.difability.enums.JobType;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -56,6 +57,13 @@ public class JobSeeker extends User {
     @Enumerated(EnumType.STRING)
     @Column(name = "education_level", length = 20)
     private EducationLevel educationLevel;
+
+    @Column(name = "academic_year", length = 10)
+    private String academicYear;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "job_type_preference")
+    private JobType jobType;
 
     @Column(name = "pp_image_path", length = 100)
     private String ppImagePath;   

@@ -20,6 +20,18 @@ public record CompanyProfileRequest(
 
     @URL
     String websiteUrl,
+
+    @URL
+    String linkedinUrl,
+
+    @URL
+    String youtubeUrl,
+
+    @URL
+    String instagramUrl,
+
+    @URL
+    String twitterUrl,
     
     String logoImagePath
 ){}
