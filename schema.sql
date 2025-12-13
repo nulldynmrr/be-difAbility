@@ -133,3 +133,19 @@ ALTER TABLE job_seekers
 ALTER TABLE jobs
     ADD CONSTRAINT fk_job_company
     FOREIGN KEY (company_id) REFERENCES companies(id);
+
+
+ALTER TABLE companies
+ADD COLUMN linkedin_url VARCHAR(255);
+
+ALTER TABLE companies
+ADD COLUMN youtube_url VARCHAR(255);
+
+ALTER TABLE companies
+ADD COLUMN instagram_url VARCHAR(255);
+
+ALTER TABLE companies
+ADD COLUMN twitter_url VARCHAR(255);
+
+ALTER TABLE companies
+ADD COLUMN agree_to_terms BOOLEAN DEFAULT FALSE;

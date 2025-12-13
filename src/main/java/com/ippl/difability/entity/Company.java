@@ -42,6 +42,18 @@ public class Company extends User {
     @Column(name = "logo_image_path", length = 100)
     private String logoImagePath;
 
+    @Column(name = "linkedin_url", length = 255)
+    private String linkedinUrl;
+
+    @Column(name = "youtube_url", length = 255)
+    private String youtubeUrl;
+
+    @Column(name = "instagram_url", length = 255)
+    private String instagramUrl;
+
+    @Column(name = "twitter_url", length = 255)
+    private String twitterUrl;
+
     @OneToMany(
         mappedBy = "company", cascade = CascadeType.ALL,
         orphanRemoval = true, fetch = FetchType.LAZY
