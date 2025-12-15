@@ -23,7 +23,7 @@ public class ChatService {
 
     @Transactional
     public ConversationResponse createOrGetConversation(CreateConversationRequest request, String username) {
-        User user = userRepository.findByIdentifier(username).orElseThrow(() -> new ResourceNotFoundException("message sembarang"));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Long currentUserId = user.getId();
         Conversation conversation = conversationRepository
                 .findByJobIdAndJobSeekerId(request.getJobId(), request.getJobSeekerId())
@@ -55,7 +55,7 @@ public class ChatService {
     // Kirim pesan
     @Transactional
     public MessageResponse sendMessage(SendMessageRequest request, String username) {
-        User user = userRepository.findByIdentifier(username).orElseThrow(() -> new ResourceNotFoundException("message sembarang"));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Long senderId = user.getId();     
        
         Conversation conversation = conversationRepository.findById(request.getConversationId())
@@ -83,9 +83,9 @@ public class ChatService {
         return mapToMessageResponse(message);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<MessageResponse> getMessages(Long conversationId, String username) {
-        User user = userRepository.findByIdentifier(username).orElseThrow(() -> new ResourceNotFoundException("message sembarang"));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Long currentUserId = user.getId();
         Conversation conversation = conversationRepository.findById(conversationId)
                 .orElseThrow(() -> new RuntimeException("Conversation not found"));
@@ -105,9 +105,9 @@ public class ChatService {
 
     @Transactional(readOnly = true)
     public List<ConversationResponse> getUserConversations(String username) {
-        User user = userRepository.findByIdentifier(username).orElseThrow(() -> new ResourceNotFoundException("message sembarang"));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Long userId = user.getId();
-        List<Conversation> conversations = conversationRepository.findByUserIdOrderByLastMessageAtDesc(userId);
+        List<Conversation> conversations = conversationRepository.findByUserIdOrderByLastMessageDesc(userId);
 
         return conversations.stream()
                 .map(conv -> mapToConversationListResponse(conv, userId))
@@ -116,7 +116,7 @@ public class ChatService {
 
     @Transactional(readOnly = true)
     public ConversationResponse getConversation(Long conversationId, String username) {
-        User user = userRepository.findByIdentifier(username).orElseThrow(() -> new ResourceNotFoundException("message sembarang"));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Long currentUserId = user.getId();
         Conversation conversation = conversationRepository.findById(conversationId)
                 .orElseThrow(() -> new RuntimeException("Conversation not found"));
@@ -139,7 +139,7 @@ public class ChatService {
                 message.getId(),
                 message.getConversation().getId(),
                 message.getSender().getId(),
-                message.getSender().getIdentifier(),
+                message.getSender().getUsername(),
                 message.getSender().getRole().name(),
                 message.getMessageContent(),
                 message.getCreatedAt(),
@@ -148,7 +148,7 @@ public class ChatService {
     }
 
     private ConversationResponse mapToConversationResponse(Conversation conversation, Long currentUserId) {
-        Message latestMessage = messageRepository.findLatestMessageByConversationId(currentUserId);
+        Message latestMessage = messageRepository.findLatestMessageByConversationId(conversation.getId());
         Long unreadCount = messageRepository.countUnreadMessages(conversation.getId(), currentUserId);
         List<Message> recentMessages = messageRepository.findByConversationIdOrderByCreatedAtAsc(conversation.getId());
 
@@ -157,9 +157,9 @@ public class ChatService {
                 conversation.getJob().getId(),
                 conversation.getJob().getTitle(),
                 conversation.getCompany().getId(),
-                conversation.getCompany().getIdentifier(),
+                conversation.getCompany().getUsername(),
                 conversation.getJobSeeker().getId(),
-                conversation.getJobSeeker().getIdentifier(),
+                conversation.getJobSeeker().getUsername(),
                 conversation.getStatus(),
                 conversation.getStartedAt(),
                 conversation.getLastMessage(),
@@ -178,9 +178,9 @@ public class ChatService {
         conversation.getJob().getId(),
         conversation.getJob().getTitle(),
         conversation.getCompany().getId(),
-        conversation.getCompany().getIdentifier(),
-        conversation.getJobSeeker().getId(),
-        conversation.getJobSeeker().getIdentifier(),
+        conversation.getCompany().getUsername(),
+                conversation.getJobSeeker().getId(),
+                conversation.getJobSeeker().getUsername(),
         conversation.getStatus(),
         conversation.getStartedAt(),
         conversation.getLastMessage(),

@@ -16,16 +16,16 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
     Optional<Conversation> findByJobIdAndJobSeekerId(Long jobId, Long jobSeekerId);
 
     // all percakapan job seeker
-    List<Conversation> findByJobSeekerIdOrderByLastMessageAtDesc(Long jobSeekerId);
+    List<Conversation> findByJobSeekerIdOrderByLastMessageDesc(Long jobSeekerId);
 
     // all percakapan company
-    List<Conversation> findByCompanyIdOrderByLastMessageAtDesc(Long companyId);
+    List<Conversation> findByCompanyIdOrderByLastMessageDesc(Long companyId);
 
     // all percakapn HR
-    List<Conversation> findByHrUserIdOrderByLastMessageAtDesc(Long hrUserId);
+    List<Conversation> findByHrUserIdOrderByLastMessageDesc(Long hrUserId);
 
-    @Query("SELECT c FROM Conversation c WHERE c.jobSeeker.id = :userId OR c.company.id :=userId OR c.hrUser.id = :userId ORDER BY c.lastMessageAt DESC")
-    List<Conversation> findByUserIdOrderByLastMessageAtDesc(@Param("userId") Long userId);
+    @Query("SELECT c FROM Conversation c WHERE c.jobSeeker.id = :userId OR c.company.id = :userId OR c.hrUser.id = :userId ORDER BY c.lastMessage DESC")
+    List<Conversation> findByUserIdOrderByLastMessageDesc(@Param("userId") Long userId);
 
     @Query("SELECT COUNT(DISTINCT m.conversation) FROM Message m WHERE m.conversation.id IN " +
         "(SELECT c.id FROM Conversation c WHERE c.jobSeeker.id = :userId OR c.company.id = :userId OR c.hrUser.id = :userId)" +

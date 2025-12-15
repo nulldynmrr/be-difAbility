@@ -4,7 +4,6 @@ import com.ippl.difability.dto.*;
 import com.ippl.difability.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -51,7 +50,7 @@ public class ChatController {
     @GetMapping("/conversations/{conversationId}/messages")
     public ResponseEntity<List<MessageResponse>> getMessages(
             @PathVariable Long conversationId,
-            Authentication authentication) {
+            Principal principal) {
         List<MessageResponse> messages = chatService.getMessages(conversationId, principal.getName());
         return ResponseEntity.ok(messages);
     }
