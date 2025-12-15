@@ -1,8 +1,8 @@
 package com.ippl.difability.dto.request;
 
-import org.hibernate.validator.constraints.URL;
 import com.ippl.difability.enums.IndustryType;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 public record CompanyProfileRequest(
     @Size(max = 50)
@@ -16,19 +16,19 @@ public record CompanyProfileRequest(
 
     IndustryType industryType,
 
-    @URL
+    @Pattern(regexp = "^(https?://.*)?$", message = "Website URL must be a valid URL or empty")
     String websiteUrl,
 
-    @URL
+    @Pattern(regexp = "^(https?://.*)?$", message = "LinkedIn URL must be a valid URL or empty")
     String linkedinUrl,
 
-    @URL
+    @Pattern(regexp = "^(https?://.*)?$", message = "YouTube URL must be a valid URL or empty")
     String youtubeUrl,
 
-    @URL
+    @Pattern(regexp = "^(https?://.*)?$", message = "Instagram URL must be a valid URL or empty")
     String instagramUrl,
 
-    @URL
+    @Pattern(regexp = "^(https?://.*)?$", message = "Twitter URL must be a valid URL or empty")
     String twitterUrl,
 
     String logoImagePath,

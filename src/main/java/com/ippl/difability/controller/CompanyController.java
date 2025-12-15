@@ -42,20 +42,17 @@ public class CompanyController {
 
     @GetMapping("/companies/me/profile")
     @PreAuthorize("hasAuthority('COMPANY')")
-    public ResponseEntity<?> getMyProfile(Principal principal) {
-        return ResponseEntity.ok(
-        companyService.getMyProfile(principal.getName())
-        );
+    public ResponseEntity<CompanyProfileResponse> getMyProfile(Principal principal) {
+        CompanyProfileResponse response = companyService.getMyProfile(principal.getName());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/companies/me/profile")
-@PreAuthorize("hasAuthority('COMPANY')")
-public ResponseEntity<?> createProfile(
-        Principal principal,
-        @Valid @RequestBody CompanyProfileRequest request) {
-
-    CompanyProfileResponse response = companyService.createProfile(principal.getName(), request);
-    return ResponseEntity.ok(response);
-}
-
+    @PreAuthorize("hasAuthority('COMPANY')")
+    public ResponseEntity<CompanyProfileResponse> createProfile(
+            Principal principal,
+            @Valid @RequestBody CompanyProfileRequest request) {
+        CompanyProfileResponse response = companyService.createProfile(principal.getName(), request);
+        return ResponseEntity.ok(response);
+    }
 }

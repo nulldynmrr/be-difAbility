@@ -55,35 +55,23 @@ public class CompanyService {
     Company company = companyRepository.findByUsername(username)
         .orElseThrow(UserNotFoundException::new);
 
-    if (isValidField(request.companyName())) {
-        company.setCompanyName(request.companyName());
-    }
-    if (isValidField(request.companyDescription())) {
-        company.setCompanyDescription(request.companyDescription());
-    }
-    if (isValidField(request.address())) {
-        company.setAddress(request.address());
-    }
+    company.setCompanyName(isValidField(request.companyName()) ? request.companyName() : null);
+    company.setCompanyDescription(isValidField(request.companyDescription()) ? request.companyDescription() : null);
+    company.setAddress(isValidField(request.address()) ? request.address() : null);
+    
     if (request.industryType() != null) {
         company.setIndustryType(request.industryType());
     }
-    if (isValidField(request.websiteUrl())) {
-        company.setWebsiteUrl(request.websiteUrl());
-    }
-    if (isValidField(request.logoImagePath())) {
-        company.setLogoImagePath(request.logoImagePath());
-    }
-    if (isValidField(request.linkedinUrl())) {
-        company.setLinkedinUrl(request.linkedinUrl());
-    }
-    if (isValidField(request.youtubeUrl())) {
-        company.setYoutubeUrl(request.youtubeUrl());
-    }
-    if (isValidField(request.instagramUrl())) {
-        company.setInstagramUrl(request.instagramUrl());
-    }
-    if (isValidField(request.twitterUrl())) {
-        company.setTwitterUrl(request.twitterUrl());
+    
+    company.setWebsiteUrl(isValidField(request.websiteUrl()) ? request.websiteUrl() : null);
+    company.setLogoImagePath(isValidField(request.logoImagePath()) ? request.logoImagePath() : null);
+    company.setLinkedinUrl(isValidField(request.linkedinUrl()) ? request.linkedinUrl() : null);
+    company.setYoutubeUrl(isValidField(request.youtubeUrl()) ? request.youtubeUrl() : null);
+    company.setInstagramUrl(isValidField(request.instagramUrl()) ? request.instagramUrl() : null);
+    company.setTwitterUrl(isValidField(request.twitterUrl()) ? request.twitterUrl() : null);
+    
+    if (request.agreeToTerms() != null) {
+        company.setAgreeToTerms(request.agreeToTerms());
     }
 
         companyRepository.save(company);
@@ -105,9 +93,13 @@ public class CompanyService {
         Company company = companyRepository.findByUsername(username)
             .orElseThrow(UserNotFoundException::new);
     
+        // Normalize "-" values to null when reading from database
+        String companyName = normalizeField(company.getCompanyName());
+        String companyDescription = normalizeField(company.getCompanyDescription());
+    
         CompanyProfileResponse response = CompanyProfileResponse.builder()
-            .name(company.getCompanyName())
-            .description(company.getCompanyDescription())
+            .name(companyName)
+            .description(companyDescription)
             .address(company.getAddress())
             .industryType(company.getIndustryType() != null ? company.getIndustryType().name() : null)  
             .websiteUrl(company.getWebsiteUrl())
@@ -128,22 +120,37 @@ public class CompanyService {
         return response;
     }
 
+    private String normalizeField(String field) {
+        if (field == null || field.isBlank() || field.equals("-")) {
+            return null;
+        }
+        return field;
+    }
+
     public CompanyProfileResponse createProfile(String username, CompanyProfileRequest request) {
-
         Company company = companyRepository.findByUsername(username)
-                .orElse(new Company());
+                .orElseThrow(UserNotFoundException::new);
 
-        company.setUsername(username); 
-        company.setCompanyName(request.companyName());
-        company.setCompanyDescription(request.companyDescription());
-        company.setAddress(request.address());
-        company.setIndustryType(request.industryType());
-        company.setWebsiteUrl(request.websiteUrl());
-        company.setLogoImagePath(request.logoImagePath());
-        company.setLinkedinUrl(request.linkedinUrl());
-        company.setYoutubeUrl(request.youtubeUrl());
-        company.setInstagramUrl(request.instagramUrl());
-        company.setTwitterUrl(request.twitterUrl());
+        company.setCompanyName(isValidField(request.companyName()) ? request.companyName() : null);
+        company.setCompanyDescription(isValidField(request.companyDescription()) ? request.companyDescription() : null);
+        company.setAddress(isValidField(request.address()) ? request.address() : null);
+        
+        if (request.industryType() != null) {
+            company.setIndustryType(request.industryType());
+        }
+        
+        company.setWebsiteUrl(isValidField(request.websiteUrl()) ? request.websiteUrl() : null);
+        company.setLogoImagePath(isValidField(request.logoImagePath()) ? request.logoImagePath() : null);
+        company.setLinkedinUrl(isValidField(request.linkedinUrl()) ? request.linkedinUrl() : null);
+        company.setYoutubeUrl(isValidField(request.youtubeUrl()) ? request.youtubeUrl() : null);
+        company.setInstagramUrl(isValidField(request.instagramUrl()) ? request.instagramUrl() : null);
+        company.setTwitterUrl(isValidField(request.twitterUrl()) ? request.twitterUrl() : null);
+        
+        if (request.agreeToTerms() != null) {
+            company.setAgreeToTerms(request.agreeToTerms());
+        }
+        
+        company.setProfileCompleted(true);
 
         companyRepository.save(company);
 
@@ -154,9 +161,13 @@ public class CompanyService {
             "Created company profile"
         );
 
+        // Normalize "-" values to null when returning response
+        String companyName = normalizeField(company.getCompanyName());
+        String companyDescription = normalizeField(company.getCompanyDescription());
+
         return CompanyProfileResponse.builder()
-                .name(company.getCompanyName())
-                .description(company.getCompanyDescription())
+                .name(companyName)
+                .description(companyDescription)
                 .address(company.getAddress())
                 .industryType(company.getIndustryType() != null ? company.getIndustryType().name() : null)
                 .websiteUrl(company.getWebsiteUrl())
@@ -169,14 +180,12 @@ public class CompanyService {
     }
 
     private String generateUsername(String username) {
-        boolean usernameExists;
         String newUsername;
         do {
             String baseName = username.split("@")[0];
             String uniqueId = RandomStringUtils.secure().next(6, true, true);
             newUsername = baseName + "_hr_" + uniqueId;
-            usernameExists = !userRepository.existsByUsername(newUsername);
-        } while (usernameExists);
+        } while (userRepository.existsByUsername(newUsername));
         return newUsername;
     }
 
