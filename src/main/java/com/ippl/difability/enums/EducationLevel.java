@@ -8,18 +8,13 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum EducationLevel {
-    HIGH_SCHOOL(1, "High School"),
-    COLLEGE_STUDENT(2, "College Student"),
-    BACHELOR(3, "Bachelor"),
-    MASTER(4, "Master"),
-    DOCTORATE(5, "Doctorate");
-
-    private final int rank;
+    // sma, kuliah, s1, s2, s3
+    HIGH_SCHOOL("High School"),
+    COLLEGE_STUDENT("College Student"),
+    BACHELOR("Bachelor"),
+    MASTER("Master"),
+    DOCTORATE("Doctorate");
 
     @JsonValue
     private final String label;
-
-    public boolean isHigherOrEqual(EducationLevel other) {
-        return this.rank >= other.rank;
-    }
 }

@@ -1,22 +1,21 @@
 package com.ippl.difability.service;
 
-import java.util.Objects;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.ippl.difability.dto.AdminLoginRequest;
-import com.ippl.difability.dto.AuthResponse;
-import com.ippl.difability.dto.LoginRequest;
-import com.ippl.difability.dto.RegisterRequest;
+import com.ippl.difability.dto.request.AdminLoginRequest;
+import com.ippl.difability.dto.request.GeneralLoginRequest;
+import com.ippl.difability.dto.request.RegistrationRequest;
+import com.ippl.difability.dto.response.AuthResponse;
 import com.ippl.difability.entity.Admin;
 import com.ippl.difability.entity.Company;
 import com.ippl.difability.entity.JobSeeker;
 import com.ippl.difability.entity.User;
 import com.ippl.difability.enums.Role;
+import com.ippl.difability.exception.EmailAlreadyExistsException;
 import com.ippl.difability.exception.ForbiddenException;
 import com.ippl.difability.exception.InvalidCredentialsException;
-import com.ippl.difability.exception.ResourceConflictException;
 import com.ippl.difability.repository.AdminRepository;
 import com.ippl.difability.repository.UserRepository;
 import com.ippl.difability.security.JwtUtil;
@@ -26,7 +25,6 @@ import dev.samstevens.totp.code.DefaultCodeGenerator;
 import dev.samstevens.totp.code.DefaultCodeVerifier;
 import dev.samstevens.totp.code.HashingAlgorithm;
 import dev.samstevens.totp.time.SystemTimeProvider;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -34,93 +32,100 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class AuthService {
     private final JwtUtil jwtUtil;
-    private final ActivityLogService activityLogService;
+    private final LogService logService;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
 
-    public AuthResponse register(RegisterRequest request){
-        if(userRepository.existsByIdentifier(request.getEmail())){
-            throw new ResourceConflictException("Email already exists.");
+    public AuthResponse register(RegistrationRequest request){
+        if(userRepository.existsByUsername(request.email())){
+            throw new EmailAlreadyExistsException();
         }
 
-        Role role = request.getRole();
+        Role role = request.role();
         User user = switch (role){
             case JOB_SEEKER -> new JobSeeker();
             case COMPANY -> new Company();
-            default -> throw new ForbiddenException("Registration not allowed.");
+            default -> throw new ForbiddenException();
         };
 
-        user.setIdentifier(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setUsername(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
         user.setRole(role);
         userRepository.save(user);
         
-        String email = Objects.requireNonNull(user.getIdentifier(), "Email cannot be null");
-        String roleName = Objects.requireNonNull(role, "Role cannot be null").name();
-
-        activityLogService.log(
-            email,
-            roleName,
+        logService.log(
+            user.getUsername(),
+            user.getRole().name(),
             "REGISTER",
-            roleName + " registered a new account"
+            "Registered new account"
         );
 
-        String token = jwtUtil.generateToken(email, roleName);
-        return new AuthResponse(token, roleName);
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
+        return new AuthResponse(
+            token,
+            user.getId(),
+            user.getUsername(),
+            user.getRole(),
+            user.isProfileCompleted()
+        );
     }
 
-    public AuthResponse login(LoginRequest request){
-        User user = userRepository.findByIdentifier(request.getIdentifier())
-            .orElseThrow(() -> new InvalidCredentialsException("Invalid identifier or password."));
+    public AuthResponse login(GeneralLoginRequest request){
+        User user = userRepository.findByUsername(request.username())
+            .orElseThrow(InvalidCredentialsException::new);
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new InvalidCredentialsException("Invalid identifier or password.");
+        if(!passwordEncoder.matches(request.password(), user.getPassword())){
+            throw new InvalidCredentialsException();
         }
 
-        String identifier = Objects.requireNonNull(user.getIdentifier(), "Identifier cannot be null.");
-        String roleName = Objects.requireNonNull(user.getRole(), "Role cannot be null.").name();
-
-        activityLogService.log(
-            identifier,
-            roleName,
+        logService.log(
+            user.getUsername(),
+            user.getRole().name(),
             "LOGIN",
-            roleName + " logged in"
+            "User logged in"
         );
 
-        String token = jwtUtil.generateToken(identifier, roleName);
-        return new AuthResponse(token, roleName);
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
+        return new AuthResponse(
+            token,
+            user.getId(),
+            user.getUsername(),
+            user.getRole(),
+            user.isProfileCompleted()
+        );
     }
 
-    @SuppressWarnings("null")
     public AuthResponse loginAdmin(AdminLoginRequest request){
-        Admin admin = adminRepository.findByIdentifier(request.getEmail())
-            .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password."));
+        Admin admin = adminRepository.findByUsername(request.username())
+            .orElseThrow(InvalidCredentialsException::new);
 
-        if(!passwordEncoder.matches(request.getPassword(), admin.getPassword())){
-            throw new InvalidCredentialsException("Invalid email or password.");
+        if(!passwordEncoder.matches(request.password(), admin.getPassword())){
+            throw new InvalidCredentialsException();
+        }
+    
+        if(!verifyOtp(admin.getTotpSecret(), request.otp())){
+            throw new InvalidCredentialsException();    
         }
 
-        String otpSecret = "abcd1234";
-        if(!verifyOtp(otpSecret, request.getOtp())){
-            throw new InvalidCredentialsException("Wrong OTP code");      
-        }
-
-        String email = Objects.requireNonNull(admin.getIdentifier(), "Email cannot be null.");
-        String roleName = Objects.requireNonNull(admin.getRole(), "Role cannot be null.").name();
-
-        activityLogService.log(
-            email,
-            roleName,
+        logService.log(
+            admin.getUsername(),
+            admin.getRole().name(),
             "LOGIN_ADMIN",
-            roleName + " logged in with OTP"
+            "Admin logged in with OTP"
         );
 
-        String token = jwtUtil.generateToken(email, roleName);
-        return new AuthResponse(token, roleName);
+        String token = jwtUtil.generateToken(admin.getUsername(), admin.getRole().name());
+        return new AuthResponse(
+            token,
+            admin.getId(),
+            admin.getUsername(),
+            admin.getRole(),
+            admin.isProfileCompleted()
+        );
     }
 
-     private boolean verifyOtp(String secret, String code){
+    private boolean verifyOtp(String secret, String code){
         CodeVerifier verifier = new DefaultCodeVerifier(
             new DefaultCodeGenerator(HashingAlgorithm.SHA1),
             new SystemTimeProvider()
