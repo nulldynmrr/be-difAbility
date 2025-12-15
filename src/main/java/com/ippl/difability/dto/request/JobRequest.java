@@ -1,0 +1,32 @@
+package com.ippl.difability.dto.request;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import com.ippl.difability.enums.DisabilityType;
+import com.ippl.difability.enums.EducationLevel;
+
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+
+public record JobRequest(
+    @Size(max = 50)
+    String title,
+
+    @Size(max = 1000)
+    String jobDescription,
+
+    @Digits(integer = 12, fraction = 2)
+    BigDecimal salary,
+
+    EducationLevel minimumEducation,
+
+    @Positive
+    Integer minimumYearsExperience,
+
+    List<DisabilityType> compatibleDisabilities,
+
+    LocalDateTime registrationDeadline
+){}

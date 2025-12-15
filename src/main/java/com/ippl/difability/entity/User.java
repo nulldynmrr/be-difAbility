@@ -1,5 +1,10 @@
 package com.ippl.difability.entity;
 
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import com.ippl.difability.enums.Role;
 
 import jakarta.persistence.Column;
@@ -17,10 +22,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "users")
@@ -29,15 +32,24 @@ public abstract class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false, length = 128)
-    private String identifier;
+    @Column(name = "username", unique = true, nullable = false, length = 50)
+    private String username;
 
-    @Column(nullable = false, length = 128)
+    @Column(name = "password", nullable = false, length = 100)
     private String password;
     
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 32)
+    @Column(name = "role", nullable = false, length = 15)
     private Role role;
 
+    @Column(name = "is_profile_completed", nullable = false)
     private boolean profileCompleted = false;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt = LocalDateTime.now();
 }

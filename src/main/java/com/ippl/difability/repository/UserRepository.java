@@ -1,12 +1,16 @@
 package com.ippl.difability.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import com.ippl.difability.entity.User;
 
+@Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    boolean existsByIdentifier(String identifier);
-    Optional<User> findByIdentifier(String identifier);
+    Optional<User> findByUsername(String username);
+    boolean existsByUsername(String username);
+    List<User> findAllByOrderByCreatedAtDesc();
 }

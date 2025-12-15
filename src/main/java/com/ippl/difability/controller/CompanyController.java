@@ -1,27 +1,58 @@
 package com.ippl.difability.controller;
 
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import java.security.Principal;
 
-import com.ippl.difability.dto.HrAccountResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import com.ippl.difability.dto.request.CompanyProfileRequest;
+import com.ippl.difability.dto.response.CompanyProfileResponse;
+import com.ippl.difability.dto.response.HrCredentialResponse;
 import com.ippl.difability.service.CompanyService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RequiredArgsConstructor
 public class CompanyController {
     private final CompanyService companyService;
 
-    @PostMapping("/company/hr-accounts")
-    @PreAuthorize("hasRole('COMPANY')")
-    public HrAccountResponse generateHr(@AuthenticationPrincipal UserDetails principal){
-        String identifier = principal.getUsername();
-        return companyService.generateHr(identifier);
+    @PostMapping("/companies/me/humanresources")
+    @PreAuthorize("hasAuthority('COMPANY')")
+    public ResponseEntity<HrCredentialResponse> generateHrAccount(
+            Principal principal) {
+        HrCredentialResponse response = companyService.generateHrAccount(principal.getName());
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/companies/me/profile")
+    @PreAuthorize("hasAuthority('COMPANY')")
+    public ResponseEntity<?> updateProfile(
+            Principal principal,
+            @Valid @RequestBody CompanyProfileRequest request) {  
+        companyService.updateProfile(principal.getName(), request);
+        return ResponseEntity.ok().body(
+            java.util.Map.of("message", "Profile updated successfully")
+        );
+    }
+
+    @GetMapping("/companies/me/profile")
+    @PreAuthorize("hasAuthority('COMPANY')")
+    public ResponseEntity<CompanyProfileResponse> getMyProfile(Principal principal) {
+        CompanyProfileResponse response = companyService.getMyProfile(principal.getName());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/companies/me/profile")
+    @PreAuthorize("hasAuthority('COMPANY')")
+    public ResponseEntity<CompanyProfileResponse> createProfile(
+            Principal principal,
+            @Valid @RequestBody CompanyProfileRequest request) {
+        CompanyProfileResponse response = companyService.createProfile(principal.getName(), request);
+        return ResponseEntity.ok(response);
     }
 }

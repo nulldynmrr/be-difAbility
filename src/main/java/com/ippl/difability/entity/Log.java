@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,20 +13,27 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Getter @Setter
 @Entity
-@Table(name = "activity_logs")
-public class ActivityLog {
+@Table(name = "logs")
+public class Log {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String actorIdentifier;
+    @Column(name = "actor_username", nullable = false, length = 50, updatable = false)
+    private String actorUsername;
+
+    @Column(name = "actor_role", nullable = false, length = 15, updatable = false)
     private String actorRole; 
+
+    @Column(name = "action", nullable = false, length = 50, updatable = false)
     private String action;      
+
+    @Column(name = "description", nullable = false, length = 75, updatable = false)
     private String description;
 
     @CreationTimestamp
-    private LocalDateTime timeCreated;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 }

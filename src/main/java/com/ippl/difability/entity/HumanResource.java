@@ -2,6 +2,7 @@ package com.ippl.difability.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -11,8 +12,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Getter @Setter
 @Entity
 @Table(name = "human_resources")
 @PrimaryKeyJoinColumn(name = "id")
@@ -21,4 +21,13 @@ public class HumanResource extends User {
     @JoinColumn(name = "company_id", nullable = false)
     @JsonBackReference
     private Company company;
+
+    @Column(name = "full_name", length = 50)
+    private String fullName;
+
+    @Column(name = "contact", length = 15)
+    private String contact;
+    
+    @Column(name = "is_active", nullable = false)
+    private boolean active = true;
 }

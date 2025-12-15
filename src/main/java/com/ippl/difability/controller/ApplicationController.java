@@ -1,11 +1,9 @@
 package com.ippl.difability.controller;
 
-import java.util.List;
+import java.security.Principal;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,10 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ippl.difability.dto.ReviewApplicationRequest;
-import com.ippl.difability.dto.ReviewApplicationResponse;
-import com.ippl.difability.entity.Application;
-import com.ippl.difability.repository.ApplicationRepository;
+import com.ippl.difability.dto.request.ApplicationRequest;
+import com.ippl.difability.dto.request.ApplicationReviewRequest;
 import com.ippl.difability.service.ApplicationService;
 
 import jakarta.validation.Valid;
@@ -26,32 +22,25 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class ApplicationController {
-    public final ApplicationService applicationService;
-    public final ApplicationRepository applicationRepository;
+    private final ApplicationService applicationService;
 
     @PostMapping("/jobs/{jobId}/applications")
-    @PreAuthorize("hasRole('JOB_SEEKER')")
-    public Application createApplication(
-        @PathVariable Long jobId,
-        @AuthenticationPrincipal UserDetails principal){
-
-        String identifier = principal.getUsername();
-        return applicationService.createApplication(identifier, jobId);
+    @PreAuthorize("hasAuthority('JOB_SEEKER')")
+    public ResponseEntity<Void> createApplication(
+            @PathVariable Long jobId,
+            @Valid @RequestBody ApplicationRequest request,
+            Principal principal){
+        applicationService.createApplication(principal.getName(), jobId, request);
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/applications/{applicationId}")
-    @PreAuthorize("hasRole('HUMAN_RESOURCE')")
-    public ReviewApplicationResponse reviewApplication(
-        @PathVariable Long applicationId,
-        @AuthenticationPrincipal UserDetails principal,
-        @Valid @RequestBody ReviewApplicationRequest request){
-
-        String identifier = principal.getUsername();
-        return applicationService.reviewApplication(identifier, applicationId, request);
-    }
-
-    @GetMapping("/applications")
-    public List<Application> getAllApplications(){
-        return applicationRepository.findAll();
+    @PreAuthorize("hasAuthority('HUMAN_RESOURCE')")
+    public ResponseEntity<Void> reviewApplication(
+            @PathVariable Long applicationId,
+            @RequestBody ApplicationReviewRequest request,
+            Principal principal){
+        applicationService.reviewApplication(principal.getName(), applicationId, request);
+        return ResponseEntity.ok().build();
     }
 }
