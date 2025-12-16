@@ -99,11 +99,11 @@ Header: Bearer Token
   "address": "...",
   "industryType": "Technology/Healthcare/Education/Finance/E-Commerce/Media/Others",
   "websiteUrl": "...",
-  "logoImgPath": "/..."
-   linkedinUrl: "",
-    youtubeUrl: "",
-    instagramUrl: "",
-    twitterUrl: "",
+  "logoImgPath": "/...",
+  "linkedinUrl: "",
+  "youtubeUrl": "",
+  "instagramUrl": "",
+   "twitterUrl": "",
 }
 ```
 
