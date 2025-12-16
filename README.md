@@ -100,7 +100,7 @@ Header: Bearer Token
   "industryType": "Technology/Healthcare/Education/Finance/E-Commerce/Media/Others",
   "websiteUrl": "...",
   "logoImgPath": "/...",
-  "linkedinUrl: "",
+  "linkedinUrl": "",
   "youtubeUrl": "",
   "instagramUrl": "",
    "twitterUrl": "",
