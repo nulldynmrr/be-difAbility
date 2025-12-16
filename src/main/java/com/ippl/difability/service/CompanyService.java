@@ -135,7 +135,6 @@ public class CompanyService {
         Company company = companyRepository.findByUsername(username)
                 .orElseThrow(UserNotFoundException::new);
 
-        // For POST: Save values as provided, convert null to empty string to avoid null
         company.setCompanyName(request.companyName() != null && !request.companyName().isBlank() ? request.companyName() : "");
         company.setCompanyDescription(request.companyDescription() != null && !request.companyDescription().isBlank() ? request.companyDescription() : "");
         company.setAddress(request.address() != null && !request.address().isBlank() ? request.address() : "");
