@@ -47,6 +47,13 @@ public class CompanyController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/humanresources/me/company")
+    @PreAuthorize("hasAuthority('HUMAN_RESOURCE')")
+    public ResponseEntity<CompanyProfileResponse> getMyCompany(Principal principal) {
+        CompanyProfileResponse response = companyService.getMyCompany(principal.getName());
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/companies/me/profile")
     @PreAuthorize("hasAuthority('COMPANY')")
     public ResponseEntity<CompanyProfileResponse> createProfile(

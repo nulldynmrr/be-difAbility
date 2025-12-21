@@ -19,12 +19,12 @@ public record JobRequest(
     @Size(max = 1000)
     String jobDescription,
 
-    @Digits(integer = 12, fraction = 2)
+    // @Digits(integer = 12, fraction = 2)
     BigDecimal salary,
 
     EducationLevel minimumEducation,
 
-    JobType jobtype,
+    JobType jobType,
 
     @Positive
     Integer minimumYearsExperience,

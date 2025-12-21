@@ -131,6 +131,35 @@ public class CompanyService {
         return response;
     }
 
+    public CompanyProfileResponse getMyCompany(String username) {
+        HumanResource humanResource = humanResourceRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+    
+        Company company = humanResource.getCompany();
+    
+        CompanyProfileResponse response = CompanyProfileResponse.builder()
+            .name(company.getCompanyName())
+            .description(company.getCompanyDescription())
+            .address(company.getAddress())
+            .industryType(company.getIndustryType() != null ? company.getIndustryType().name() : null)  
+            .websiteUrl(company.getWebsiteUrl())
+            .linkedinUrl(company.getLinkedinUrl())
+            .youtubeUrl(company.getYoutubeUrl())
+            .instagramUrl(company.getInstagramUrl())
+            .twitterUrl(company.getTwitterUrl())
+            .logoImgPath(company.getLogoImagePath())
+            .build();
+    
+        logService.log(
+            username,
+            company.getRole().name(),
+            "VIEW_PROFILE",
+            "Viewed company profile"
+        );
+    
+        return response;
+    }
+
     public CompanyProfileResponse createProfile(String username, CompanyProfileRequest request) {
         Company company = companyRepository.findByUsername(username)
                 .orElseThrow(UserNotFoundException::new);
