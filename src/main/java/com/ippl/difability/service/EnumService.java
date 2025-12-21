@@ -9,6 +9,7 @@ import com.ippl.difability.enums.DisabilityType;
 import com.ippl.difability.enums.EducationLevel;
 import com.ippl.difability.enums.IndustryType;
 import com.ippl.difability.enums.PublicationStatus;
+import com.ippl.difability.enums.JobType;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,5 +36,9 @@ public class EnumService {
     
     public List<PublicationStatus> getPublicationStatuses(){
         return List.of(PublicationStatus.values());
+    }
+
+    public List<JobType> getJobTypes(){
+        return List.of(JobType.values());
     }
 }

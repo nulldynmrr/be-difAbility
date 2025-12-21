@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.ippl.difability.enums.DisabilityType;
 import com.ippl.difability.enums.EducationLevel;
+import com.ippl.difability.enums.JobType;
 
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Positive;
@@ -22,6 +23,8 @@ public record JobRequest(
     BigDecimal salary,
 
     EducationLevel minimumEducation,
+
+    JobType jobtype,
 
     @Positive
     Integer minimumYearsExperience,

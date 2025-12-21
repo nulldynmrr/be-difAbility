@@ -67,6 +67,7 @@ public class JobService {
         job.setMinimumYearsExperience(request.minimumYearsExperience());
         job.setCompatibleDisabilities(request.compatibleDisabilities());
         job.setRegistrationDeadline(request.registrationDeadline());
+        job.setJobType(request.jobtype());
         jobRepository.save(job);
 
         logService.log(
