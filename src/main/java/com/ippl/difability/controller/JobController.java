@@ -1,10 +1,10 @@
 package com.ippl.difability.controller;
 
-import java.security.Principal;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,8 +28,8 @@ public class JobController {
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<JobResponse>> getJobs(Principal principal){
-        List<JobResponse> jobs = jobService.getJobs(principal.getName());
+    public ResponseEntity<List<JobResponse>> getJobs(Authentication auth){
+        List<JobResponse> jobs = jobService.getJobs(auth.getName());
         return ResponseEntity.ok(jobs);
     }
     
@@ -45,17 +45,17 @@ public class JobController {
     @PreAuthorize("hasAuthority('HUMAN_RESOURCE') or hasAuthority('COMPANY')")
     public ResponseEntity<Void> createJob(
             @Valid @RequestBody JobRequest request,
-            Principal principal){
-        jobService.createJob(principal.getName(), request);
+            Authentication auth){
+        jobService.createJob(auth.getName(), request);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/jobs/{jobId}")
+    @DeleteMapping("/{jobId}")
     @PreAuthorize("hasAuthority('HUMAN_RESOURCE') or hasAuthority('COMPANY')")
     public ResponseEntity<Void> deleteJob(
             @PathVariable Long jobId,
-            Principal principal){
-        jobService.deletejob(principal.getName(), jobId);
+            Authentication auth){
+        jobService.deletejob(auth.getName(), jobId);
         return ResponseEntity.noContent().build();
     }
 }

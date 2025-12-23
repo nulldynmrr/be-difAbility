@@ -18,4 +18,4 @@ public record JobSeekerDetailResponse(
     JobType jobType,
     String ppImagePath,
     String cvDocumentPath 
-) implements UserDetailsResponse {}
+){}

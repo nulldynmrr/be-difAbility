@@ -4,4 +4,4 @@ public record HumanResourceDetailResponse(
     String fullName,
     String contact,
     String ppImagePath
-) implements UserDetailsResponse{}
+){}

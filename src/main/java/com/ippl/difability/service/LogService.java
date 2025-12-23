@@ -1,4 +1,4 @@
-    package com.ippl.difability.service;
+package com.ippl.difability.service;
 
 import java.util.List;
 
@@ -32,24 +32,12 @@ public class LogService {
         );
     }
 
-    public List<LogResponse> getLogsByUsername(String username){
-        return mapToList(
-            logRepository.findByActorUsernameOrderByCreatedAtDesc(username)
-        );
-    }
-
     public List<LogResponse> getLogsByRole(Role role){
         return mapToList(
             logRepository.findByActorRoleOrderByCreatedAtDesc(role.name())
         );
     }
-    
-    public List<LogResponse> getLogsByAction(String action){
-        return mapToList(
-            logRepository.findByActionOrderByCreatedAtDesc(action)
-        );
-    }
-    
+
     private List<LogResponse> mapToList(List<Log> logs){
         return logs.stream()
             .map(this::mapToResponse)
@@ -65,5 +53,17 @@ public class LogService {
             log.getCreatedAt()
         );
     }
+
+    // public List<LogResponse> getLogsByUsername(String username){
+    //     return mapToList(
+    //         logRepository.findByActorUsernameOrderByCreatedAtDesc(username)
+    //     );
+    // }
+ 
+    // public List<LogResponse> getLogsByAction(String action){
+    //     return mapToList(
+    //         logRepository.findByActionOrderByCreatedAtDesc(action)
+    //     );
+    // }
 }
  

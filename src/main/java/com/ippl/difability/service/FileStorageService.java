@@ -65,7 +65,7 @@ public class FileStorageService {
                     throw new InvalidFileException("Documents must be PDF.");
                 }
                 if (!name.endsWith(".pdf")){
-                    throw new InvalidFileException("Invalid PDF extension.");
+                    throw new InvalidFileException("Invalid PDF extension.")  ;
                 }
             }
             default 

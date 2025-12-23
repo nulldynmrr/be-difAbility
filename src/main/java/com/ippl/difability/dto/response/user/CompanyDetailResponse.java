@@ -13,4 +13,4 @@ public record CompanyDetailResponse(
     String instagramUrl,
     String twitterUrl,
     String logoImagePath
-) implements UserDetailsResponse{}
+){}

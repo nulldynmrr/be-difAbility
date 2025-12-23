@@ -1,9 +1,8 @@
 package com.ippl.difability.controller;
 
-import java.security.Principal;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -32,8 +31,8 @@ public class ApplicationController {
     public ResponseEntity<ApplicationResponse> getApplication(
             @PathVariable Long jobId,
             @PathVariable Long applicationId,
-            Principal principal){
-        ApplicationResponse application = applicationService.getApplication(principal.getName(), jobId, applicationId);
+            Authentication auth){
+        ApplicationResponse application = applicationService.getApplication(auth.getName(), jobId, applicationId);
         return ResponseEntity.ok(application);
     }
 
@@ -42,8 +41,8 @@ public class ApplicationController {
     public ResponseEntity<Void> createApplication(
             @PathVariable Long jobId,
             @Valid @RequestBody ApplicationRequest request,
-            Principal principal){
-        applicationService.createApplication(principal.getName(), jobId, request);
+            Authentication auth){
+        applicationService.createApplication(auth.getName(), jobId, request);
         return ResponseEntity.ok().build();
     }
 
@@ -53,8 +52,8 @@ public class ApplicationController {
             @PathVariable Long jobId,
             @PathVariable Long applicationId,
             @RequestBody ApplicationReviewRequest request,
-            Principal principal){
-        applicationService.reviewApplication(principal.getName(), jobId, applicationId, request);
+            Authentication auth){
+        applicationService.reviewApplication(auth.getName(), jobId, applicationId, request);
         return ResponseEntity.ok().build();
     }
 
@@ -62,8 +61,8 @@ public class ApplicationController {
     @PreAuthorize("hasAuthority('JOB_SEEKER')")
     public ResponseEntity<Void> deleteApplication(
             @PathVariable Long applicationId,
-            Principal principal){
-        applicationService.deleteApplication(principal.getName(), applicationId);
+            Authentication auth){
+        applicationService.deleteApplication(auth.getName(), applicationId);
         return ResponseEntity.noContent().build();
     }
 }

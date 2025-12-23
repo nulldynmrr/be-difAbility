@@ -27,25 +27,11 @@ public class LogController {
         List<LogResponse> logs = logService.getLogs();
         return ResponseEntity.ok(logs);
     }
-
-    @GetMapping("/users/{username}")
-    @PreAuthorize("hasAuthority('ADMIN')") 
-    public ResponseEntity<List<LogResponse>> getLogsByUsername(@PathVariable String username){
-        List<LogResponse> logs = logService.getLogsByUsername(username);
-        return ResponseEntity.ok(logs);
-    }
-
+    
     @GetMapping("/roles/{role}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<LogResponse>> getLogsByRole(@PathVariable Role role){
         List<LogResponse> logs = logService.getLogsByRole(role);
-        return ResponseEntity.ok(logs);
-    }
-
-    @GetMapping("/actions/{action}")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<List<LogResponse>> getLogsByAction(@PathVariable String action){
-        List<LogResponse> logs = logService.getLogsByAction(action);
         return ResponseEntity.ok(logs);
     }
 }
