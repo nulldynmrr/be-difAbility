@@ -221,6 +221,11 @@ Access: HUMAN_RESOURCE, COMPANY
 
 **Base URL:** `/api`
 
+### Get List of Applications
+
+**GET** `/jobs/{jobId}/applications`
+Access: HUMAN_RESOURCE
+
 ### Get Application
 
 **GET** `/jobs/{jobId}/applications/{applicationId}`  

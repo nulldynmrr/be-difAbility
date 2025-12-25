@@ -1,5 +1,7 @@
 package com.ippl.difability.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.ippl.difability.dto.request.ApplicationRequest;
@@ -35,9 +37,22 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final LogService logService;
 
-    // cek hr, job, application
-    // cek hr.company == job.company
-    // cek application.job == job
+    public List<ApplicationResponse> getApplications(String username, Long jobId){
+        HumanResource humanResource = humanResourceRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+
+        Job job = jobRepository.findById(jobId)
+            .orElseThrow(JobNotFoundException::new);
+
+        if(!humanResource.getCompany().getId().equals(job.getCompany().getId())){
+            throw new ForbiddenException();
+        }
+        
+        List<Application> applications = applicationRepository.findByJobId(jobId);
+
+        return mapToList(applications);
+    }
+
     public ApplicationResponse getApplication(String username, Long jobId, Long applicationId){
         HumanResource humanResource = humanResourceRepository.findByUsername(username)
             .orElseThrow(UserNotFoundException::new);
@@ -153,5 +168,11 @@ public class ApplicationService {
             application.getCoverLetter(),
             application.getAppliedAt()
         );
+    }
+
+    private List<ApplicationResponse> mapToList(List<Application> applications){
+    return applications.stream()
+            .map(this::mapToResponse)
+            .toList();
     }
 }

@@ -1,5 +1,7 @@
 package com.ippl.difability.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -25,6 +27,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApplicationController {
     private final ApplicationService applicationService;
+
+    @GetMapping("/jobs/{jobId}/applications")
+    @PreAuthorize("hasAuthority('HUMAN_RESOURCE')")
+    public ResponseEntity<List<ApplicationResponse>> getApplications(
+            @PathVariable Long jobId,
+            Authentication auth){
+        List<ApplicationResponse> applications = applicationService.getApplications(auth.getName(), jobId);
+        return ResponseEntity.ok(applications);
+    }
 
     @GetMapping("/jobs/{jobId}/applications/{applicationId}")
     @PreAuthorize("hasAuthority('HUMAN_RESOURCE')")
