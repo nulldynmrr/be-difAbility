@@ -7,15 +7,18 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ippl.difability.dto.request.AdminLoginRequest;
 import com.ippl.difability.dto.request.GeneralLoginRequest;
 import com.ippl.difability.dto.request.RegistrationRequest;
+import com.ippl.difability.dto.response.AuthMeResponse;
 import com.ippl.difability.dto.response.AuthResponse;
 import com.ippl.difability.entity.Admin;
 import com.ippl.difability.entity.Company;
+import com.ippl.difability.entity.HumanResource;
 import com.ippl.difability.entity.JobSeeker;
 import com.ippl.difability.entity.User;
 import com.ippl.difability.enums.Role;
 import com.ippl.difability.exception.EmailAlreadyExistsException;
 import com.ippl.difability.exception.ForbiddenException;
 import com.ippl.difability.exception.InvalidCredentialsException;
+import com.ippl.difability.exception.UserNotFoundException;
 import com.ippl.difability.repository.AdminRepository;
 import com.ippl.difability.repository.UserRepository;
 import com.ippl.difability.security.JwtUtil;
@@ -36,6 +39,41 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
+
+    public AuthMeResponse authMe(String username){
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+
+        Long responseId = user.getId();
+        Long responseCompanyId = null;
+        String responseFullName = null;
+
+        switch (user.getRole()) {
+            case HUMAN_RESOURCE -> {
+                HumanResource humanResource = (HumanResource) user;
+                responseFullName = humanResource.getFullName();
+                responseCompanyId = humanResource.getCompany().getId(); 
+            }
+            case COMPANY -> {
+                Company company = (Company) user;
+                responseFullName = company.getCompanyName(); 
+            }
+            case JOB_SEEKER -> {
+                JobSeeker jobSeeker = (JobSeeker) user;
+                responseFullName = jobSeeker.getFullName();
+            }
+            default -> throw new ForbiddenException();
+        }
+
+        return new AuthMeResponse(
+            responseId,
+            responseCompanyId,
+            responseFullName,
+            user.getUsername(),
+            user.getRole()
+        );
+    }
+
 
     public AuthResponse register(RegistrationRequest request){
         if(userRepository.existsByUsername(request.email())){

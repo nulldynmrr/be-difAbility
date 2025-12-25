@@ -4,6 +4,11 @@
 
 **Base URL:** `/api/auth`
 
+### Me
+
+**GET** `/me`  
+Access: Authenticated
+
 ### Register
 
 **POST** `/registration`  
