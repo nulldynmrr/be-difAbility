@@ -49,17 +49,4 @@ public class Company extends User {
 
     @Column(name = "agree_to_terms", length = 10)
     private Boolean agreeToTerms = false;
-
-    // @OneToMany(
-    //     mappedBy = "company", cascade = CascadeType.ALL,
-    //     orphanRemoval = true, fetch = FetchType.LAZY
-    // )
-    // private List<Job> jobs = new ArrayList<>();
-
-    // @OneToMany(
-    //     mappedBy = "company", cascade = CascadeType.ALL,
-    //     orphanRemoval = true, fetch = FetchType.LAZY
-    // )
-    // @JsonManagedReference
-    // private List<HumanResource> humanResources = new ArrayList<>();
 }

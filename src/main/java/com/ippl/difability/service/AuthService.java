@@ -74,7 +74,6 @@ public class AuthService {
         );
     }
 
-
     public AuthResponse register(RegistrationRequest request){
         if(userRepository.existsByUsername(request.email())){
             throw new EmailAlreadyExistsException();

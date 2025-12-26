@@ -71,12 +71,6 @@ public class ApplicationService {
             throw new ForbiddenException();
         }
 
-        logService.log(
-            username,
-            humanResource.getRole().name(),
-            "VIEW_APPLICATION"
-        );
-
         return mapToResponse(application);
     }
 
@@ -114,7 +108,7 @@ public class ApplicationService {
         Application application = applicationRepository.findById(applicationId)
             .orElseThrow(ApplicationNotFoundException::new);
 
-        if(application.getStatus() != ApplicationStatus.UNDER_REVIEW){
+        if(application.getApplicationStatus() != ApplicationStatus.UNDER_REVIEW){
             throw new ApplicationReviewedException();
         }
         
@@ -126,9 +120,10 @@ public class ApplicationService {
             throw new ForbiddenException();
         }
 
-        application.setStatus(request.status());
+        application.setApplicationStatus(request.status());
         application.setHrNotes(request.hrNotes());
-        if(application.getStatus() == ApplicationStatus.ACCEPTED){
+        
+        if(application.getApplicationStatus() == ApplicationStatus.ACCEPTED){
             job.setPublicationStatus(PublicationStatus.CLOSED);
         }
         
@@ -166,6 +161,8 @@ public class ApplicationService {
             application.getJobSeeker().getId(),
             application.getJobSeeker().getCvDocumentPath(),
             application.getCoverLetter(),
+            application.getHrNotes(),
+            application.getApplicationStatus(),
             application.getAppliedAt()
         );
     }

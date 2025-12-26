@@ -5,9 +5,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ippl.difability.dto.request.HumanResourceProfileRequest;
 import com.ippl.difability.dto.response.user.HumanResourceDetailResponse;
+import com.ippl.difability.entity.Company;
 import com.ippl.difability.entity.HumanResource;
-import com.ippl.difability.exception.IncompleteRequestException;
+import com.ippl.difability.exception.ForbiddenException;
 import com.ippl.difability.exception.UserNotFoundException;
+import com.ippl.difability.repository.CompanyRepository;
 import com.ippl.difability.repository.HumanResourceRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class HumanResourceService {
     private final HumanResourceRepository humanResourceRepository;
+    private final CompanyRepository companyRepository;
     private final LogService logService;
 
     public HumanResourceDetailResponse getHrProfile(Long id){
@@ -54,16 +57,36 @@ public class HumanResourceService {
         );
     }
 
-    private void validateHumanResourceInput(HumanResource humanResource, HumanResourceProfileRequest request){
-        if(!humanResource.isProfileCompleted()){
-            if(request.fullName() == null || request.contact() == null){
-                throw new IncompleteRequestException("Missing required fields.");
-            }
-            humanResource.setFullName(request.fullName());
-            humanResource.setContact(request.contact());
-            humanResource.setPpImagePath(request.ppImagePath());
-            return;
+    public void deleteHumanResource(String username, Long hrId){
+        Company company = companyRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+
+        HumanResource humanResource = humanResourceRepository.findById(hrId)
+            .orElseThrow(UserNotFoundException::new);
+        
+        if(!company.getId().equals(humanResource.getCompany().getId())){
+            throw new ForbiddenException();
         }
+
+        logService.log(
+            username,
+            company.getRole().name(),
+            "DELETE_HR"
+        );
+
+        humanResourceRepository.delete(humanResource);
+    }
+
+    private void validateHumanResourceInput(HumanResource humanResource, HumanResourceProfileRequest request){
+        // if(!humanResource.isProfileCompleted()){
+        //     if(request.fullName() == null || request.contact() == null){
+        //         throw new IncompleteRequestException("Missing required fields.");
+        //     }
+        //     humanResource.setFullName(request.fullName());
+        //     humanResource.setContact(request.contact());
+        //     humanResource.setPpImagePath(request.ppImagePath());
+        //     return;
+        // }
         if(request.fullName() != null) humanResource.setFullName(request.fullName());
         if(request.contact() != null) humanResource.setContact(request.contact());
         if(request.ppImagePath() != null) humanResource.setPpImagePath(request.ppImagePath());
