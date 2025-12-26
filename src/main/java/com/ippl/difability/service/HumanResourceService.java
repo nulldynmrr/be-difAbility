@@ -78,15 +78,6 @@ public class HumanResourceService {
     }
 
     private void validateHumanResourceInput(HumanResource humanResource, HumanResourceProfileRequest request){
-        // if(!humanResource.isProfileCompleted()){
-        //     if(request.fullName() == null || request.contact() == null){
-        //         throw new IncompleteRequestException("Missing required fields.");
-        //     }
-        //     humanResource.setFullName(request.fullName());
-        //     humanResource.setContact(request.contact());
-        //     humanResource.setPpImagePath(request.ppImagePath());
-        //     return;
-        // }
         if(request.fullName() != null) humanResource.setFullName(request.fullName());
         if(request.contact() != null) humanResource.setContact(request.contact());
         if(request.ppImagePath() != null) humanResource.setPpImagePath(request.ppImagePath());

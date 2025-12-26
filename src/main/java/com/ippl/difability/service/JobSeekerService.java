@@ -71,33 +71,6 @@ public class JobSeekerService {
     }
 
     private void validateJobSeekerInput(JobSeeker jobSeeker, JobSeekerProfileRequest request){
-        // if(!jobSeeker.isProfileCompleted()){
-        //     if(request.fullName() == null
-        //         || request.about() == null
-        //         || request.address() == null
-        //         || request.disabilityType() == null
-        //         || request.skills() == null
-        //         || request.educationLevel() == null
-        //         || request.academicYear() == null
-        //         || request.jobType() == null
-        //         || request.ppImagePath() == null
-        //         || request.cvDocumentPath() == null){
-        //         throw new IncompleteRequestException("Missing required fields.");
-        //     }
-        //     jobSeeker.setFullName(request.fullName());
-        //     jobSeeker.setAbout(request.about());
-        //     jobSeeker.setAddress(request.address());
-        //     jobSeeker.setDisabilityType(request.disabilityType());
-        //     jobSeeker.setSkills(request.skills());
-        //     jobSeeker.setEducationLevel(request.educationLevel());
-        //     jobSeeker.setAcademicYear(request.academicYear());
-        //     jobSeeker.setJobType(request.jobType());
-        //     jobSeeker.setPpImagePath(request.ppImagePath());
-        //     jobSeeker.setCvDocumentPath(request.cvDocumentPath());
-        //     jobSeeker.setCertificationFilePaths(request.certificationFilePaths());
-        //     jobSeeker.setProfileCompleted(true);
-        //     return;
-        // }
         if(request.fullName() != null) jobSeeker.setFullName(request.fullName());
         if(request.about() != null) jobSeeker.setAbout(request.about());
         if(request.address() != null) jobSeeker.setAddress(request.address());

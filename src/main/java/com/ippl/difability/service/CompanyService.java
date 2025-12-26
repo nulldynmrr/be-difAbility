@@ -138,29 +138,6 @@ public class CompanyService {
     }
 
     private void validateCompanyInput(Company company, CompanyProfileRequest request){
-        // if(!company.isProfileCompleted()){
-        //     if(request.companyName() == null
-        //             || request.companyDescription() == null
-        //             || request.address() == null
-        //             || request.industryType() == null
-        //             || request.logoImagePath() == null
-        //             || !request.agreeToTerms()){
-        //         throw new IncompleteRequestException("Missing required fields.");
-        //     }
-        //     company.setCompanyName(request.companyName());
-        //     company.setCompanyDescription(request.companyDescription());
-        //     company.setAddress(request.address());
-        //     company.setIndustryType(request.industryType());
-        //     company.setWebsiteUrl(request.websiteUrl());
-        //     company.setLinkedinUrl(request.linkedinUrl());
-        //     company.setYoutubeUrl(request.youtubeUrl());
-        //     company.setInstagramUrl(request.instagramUrl());
-        //     company.setTwitterUrl(request.twitterUrl());
-        //     company.setLogoImagePath(request.logoImagePath());
-        //     company.setAgreeToTerms(request.agreeToTerms());
-        //     company.setProfileCompleted(true);
-        //     return;
-        // }
         if(request.companyName() != null) company.setCompanyName(request.companyName());
         if(request.companyDescription() != null) company.setCompanyDescription(request.companyDescription());
         if(request.address() != null) company.setAddress(request.address());
