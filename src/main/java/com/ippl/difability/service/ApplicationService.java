@@ -1,5 +1,6 @@
 package com.ippl.difability.service;
 
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.ippl.difability.dto.request.ApplicationRequest;
@@ -38,6 +39,22 @@ public class ApplicationService {
     // cek hr, job, application
     // cek hr.company == job.company
     // cek application.job == job
+     public List<ApplicationResponse> getApplications(String username, Long jobId){
+        HumanResource humanResource = humanResourceRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+
+        Job job = jobRepository.findById(jobId)
+            .orElseThrow(JobNotFoundException::new);
+
+        if(!humanResource.getCompany().getId().equals(job.getCompany().getId())){
+            throw new ForbiddenException();
+        }
+        
+        List<Application> applications = applicationRepository.findByJobId(jobId);
+
+        return mapToList(applications);
+    }
+
     public ApplicationResponse getApplication(String username, Long jobId, Long applicationId){
         HumanResource humanResource = humanResourceRepository.findByUsername(username)
             .orElseThrow(UserNotFoundException::new);
@@ -59,7 +76,8 @@ public class ApplicationService {
         logService.log(
             username,
             humanResource.getRole().name(),
-            "VIEW_APPLICATION"
+            "VIEW_APPLICATION",
+            "Melihat aplikasi ID: " + application.getId() + " untuk job ID: " + job.getId()
         );
 
         return mapToResponse(application);
@@ -85,8 +103,9 @@ public class ApplicationService {
         logService.log(
             username,
             jobSeeker.getRole().name(),
-            "CREATE_APPLICATION"
-        );
+            "CREATE_APPLICATION",
+            "Membuat aplikasi untuk job ID: " + job.getId()
+)       ;
     }
 
     public void reviewApplication(String username, Long jobId, Long applicationId, ApplicationReviewRequest request){
@@ -117,11 +136,14 @@ public class ApplicationService {
             job.setPublicationStatus(PublicationStatus.CLOSED);
         }
         
-        logService.log(
+       logService.log(
             username,
             humanResource.getRole().name(),
-            "REVIEW_APPLICATION"
+            "REVIEW_APPLICATION",
+            "Meninjau aplikasi ID: " + application.getId() + " untuk job ID: " + job.getId() + 
+            ", status diubah menjadi: " + request.status()
         );
+
     }
 
     public void deleteApplication(String username, Long applicationId){
@@ -137,10 +159,11 @@ public class ApplicationService {
 
         applicationRepository.delete(application);
 
-        logService.log(
+       logService.log(
             username,
             jobSeeker.getRole().name(),
-            "DELETE_APPLICATION"
+            "DELETE_APPLICATION",
+            "Menghapus aplikasi ID: " + application.getId() + " untuk job ID: " + application.getJob().getId()
         );
     }
 
@@ -153,5 +176,11 @@ public class ApplicationService {
             application.getCoverLetter(),
             application.getAppliedAt()
         );
+    }
+
+    private List<ApplicationResponse> mapToList(List<Application> applications){
+    return applications.stream()
+            .map(this::mapToResponse)
+            .toList();
     }
 }

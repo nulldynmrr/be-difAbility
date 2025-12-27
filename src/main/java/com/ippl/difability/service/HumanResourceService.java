@@ -46,12 +46,14 @@ public class HumanResourceService {
             .orElseThrow(UserNotFoundException::new);
         validateHumanResourceInput(humanResource, request);
         humanResourceRepository.save(humanResource);
-
+        
         logService.log(
             username,
             humanResource.getRole().name(),
-            "UPDATE_PROFILE"
+            "UPDATE_PROFILE",
+            "Memperbarui profil Human Resource: " + humanResource.getFullName()
         );
+
     }
 
     private void validateHumanResourceInput(HumanResource humanResource, HumanResourceProfileRequest request){

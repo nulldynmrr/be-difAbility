@@ -39,7 +39,11 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.disable()) 
+            )
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/jobs/**").permitAll()
                 .requestMatchers("/api/auth/**", "/api/files/**", "/api/enums/**").permitAll()
                 .anyRequest().authenticated()
             )  
@@ -63,10 +67,10 @@ public class SecurityConfig {
         return source;
     }
 
+    // ✅ SOLUSI: Gunakan constructor DaoAuthenticationProvider(UserDetailsService)
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

@@ -33,4 +33,7 @@ public class Log {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "description", nullable = false)
+    private String description;
 }

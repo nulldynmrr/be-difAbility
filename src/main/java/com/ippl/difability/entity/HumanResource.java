@@ -30,4 +30,7 @@ public class HumanResource extends User {
 
     @Column(name = "pp_image_path", length = 100)
     private String ppImagePath;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 }

@@ -18,13 +18,16 @@ import lombok.RequiredArgsConstructor;
 public class LogService {
     private final LogRepository logRepository;
 
-    public void log(String actorUsername, String actorRole, String action){
+    public void log(String actorUsername, String actorRole, String action, String description){
         Log log = new Log();
         log.setActorUsername(actorUsername);
         log.setActorRole(actorRole);
         log.setAction(action);
+        log.setDescription(description != null ? description : "No additional info");
         logRepository.save(log);
     }
+
+
 
     public List<LogResponse> getLogs(){
         return mapToList(

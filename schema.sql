@@ -20,3 +20,7 @@ alter table if exists job_seeker_certifications add constraint FKc7ayhak3os4ees5
 alter table if exists job_seeker_skills add constraint FK7itbq9iyq42ed21fr421b6ber foreign key (job_seeker_id) references job_seekers;
 alter table if exists job_seekers add constraint FK6n38u8vdenycx0vm27sqy2jqn foreign key (id) references users;
 alter table if exists jobs add constraint FKrtmqcrktb6s7xq8djbs2a2war foreign key (company_id) references companies;
+ALTER TABLE logs
+ADD COLUMN description varchar(500) DEFAULT '';
+ALTER TABLE human_resources
+ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT TRUE;

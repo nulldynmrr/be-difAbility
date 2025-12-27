@@ -19,6 +19,7 @@ import com.ippl.difability.exception.UserNotFoundException;
 import com.ippl.difability.repository.HumanResourceRepository;
 import com.ippl.difability.repository.JobRepository;
 import com.ippl.difability.repository.UserRepository;
+import org.springframework.security.core.Authentication;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -62,37 +63,117 @@ public class JobService {
 
         jobRepository.delete(job);
 
-        logService.log(
+       logService.log(
             username,
             user.getRole().name(),
-            "DELETE_JOB"
+            "DELETE_JOB",
+            "Menghapus lowongan kerja: " + job.getTitle()
         );
+
     }
 
-    public List<JobResponse> getJobs(String username){
-        User user = userRepository.findByUsername(username)
-            .orElseThrow(UserNotFoundException::new);
+    // public List<JobResponse> getJobs(String username){
+    //     User user = userRepository.findByUsername(username)
+    //         .orElseThrow(UserNotFoundException::new);
         
-        Role role = user.getRole();
-        List<Job> jobs = switch(role){
-            case ADMIN ->
-                jobRepository.findAllByOrderByCreatedAtDesc();
-            case JOB_SEEKER ->{
-                JobSeeker jobSeeker = (JobSeeker) user;
+    //     Role role = user.getRole();
+    //     List<Job> jobs = switch(role){
+    //         case ADMIN ->
+    //             jobRepository.findAllByOrderByCreatedAtDesc();
+    //         case JOB_SEEKER ->{
+    //             JobSeeker jobSeeker = (JobSeeker) user;
 
-                yield jobRepository.findByPublicationStatusAndCompatibleDisabilitiesContaining(
-                    PublicationStatus.OPEN,
-                    jobSeeker.getDisabilityType()
-                );
-            }
-            case COMPANY, HUMAN_RESOURCE ->
-                jobRepository.findByCompanyUsername(username);
-            default ->
-                throw new ForbiddenException();
-        };
+    //             yield jobRepository.findByPublicationStatusAndCompatibleDisabilitiesContaining(
+    //                 PublicationStatus.OPEN,
+    //                 jobSeeker.getDisabilityType()
+    //             );
+    //         }
+    //         case COMPANY, HUMAN_RESOURCE ->
+    //             jobRepository.findByCompanyUsername(username);
+    //         default ->
+    //             throw new ForbiddenException();
+    //     };
 
+    //     return mapToList(jobs);
+    // }
+
+//     public List<JobResponse> getJobs(Authentication auth){
+//     List<Job> jobs;
+
+//     if(auth == null){
+//         jobs = jobRepository.findByPublicationStatus(PublicationStatus.OPEN);
+//         return mapToList(jobs);
+//     }
+
+//     User user = userRepository.findByUsername(auth.getName())
+//         .orElseThrow(UserNotFoundException::new);
+    
+//     Role role = user.getRole();
+
+//     if(role == Role.ADMIN){
+//         jobs = jobRepository.findAllByOrderByCreatedAtDesc();
+//     } else if(role == Role.JOB_SEEKER){
+//         JobSeeker jobSeeker = (JobSeeker) user;
+
+//         if(jobSeeker.getDisabilityType() == null){
+//             jobs = jobRepository.findByPublicationStatus(PublicationStatus.OPEN);
+//         } else {
+//            jobs = jobRepository.findByPublicationStatusAndCompatibleDisabilities(
+//     PublicationStatus.OPEN,
+//     jobSeeker.getDisabilityType()
+// );
+
+//         }
+//     } else if(role == Role.COMPANY || role == Role.HUMAN_RESOURCE){
+//         jobs = jobRepository.findByCompanyUsername(auth.getName());
+//     } else {
+//         throw new ForbiddenException();
+//     }
+
+//     return mapToList(jobs);
+// }
+
+public List<JobResponse> getJobs(Authentication auth) {
+    List<Job> jobs;
+
+    if(auth == null){
+        jobs = jobRepository.findByPublicationStatus(PublicationStatus.OPEN);
         return mapToList(jobs);
     }
+
+    User user = userRepository.findByUsername(auth.getName())
+        .orElseThrow(UserNotFoundException::new);
+
+    Role role = user.getRole();
+
+    if(role == Role.ADMIN){
+        jobs = jobRepository.findAllByOrderByCreatedAtDesc();
+    } 
+    else if(role == Role.JOB_SEEKER){
+        JobSeeker jobSeeker = (JobSeeker) user;
+
+        if(jobSeeker.getDisabilityType() == null){
+            jobs = jobRepository.findByPublicationStatus(PublicationStatus.OPEN);
+        } else {
+            jobs = jobRepository.findByPublicationStatusAndCompatibleDisabilities(
+                PublicationStatus.OPEN,
+                jobSeeker.getDisabilityType()
+            );
+        }
+    } 
+    else if(role == Role.COMPANY){
+        jobs = jobRepository.findByCompanyUsername(auth.getName());
+    } 
+    else if(role == Role.HUMAN_RESOURCE){
+        jobs = jobRepository.findByHumanResourceUsername(auth.getName());
+    } 
+    else {
+        throw new ForbiddenException();
+    }
+
+    return mapToList(jobs);
+}
+
 
     public void createJob(String username, JobRequest request){
         HumanResource humanResource = humanResourceRepository.findByUsername(username)
@@ -113,7 +194,8 @@ public class JobService {
         logService.log(
             username,
             humanResource.getRole().name(),
-            "CREATE_JOB"
+            "CREATE_JOB",
+            "Membuat lowongan kerja: " + job.getTitle()
         );
     }
 

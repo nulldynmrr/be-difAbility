@@ -1,6 +1,5 @@
 package com.ippl.difability.controller;
 
-import java.security.Principal;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;

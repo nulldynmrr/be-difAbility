@@ -38,7 +38,8 @@ public class UserService {
         logService.log(
             username,
             admin.getRole().name(),
-            "DELETE_USER"
+            "DELETE_USER",
+            "Admin berhasil menghapus user dengan ID " + userId
         );
     }
 

@@ -27,14 +27,12 @@ public class JobController {
     private final JobService jobService;
 
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<JobResponse>> getJobs(Authentication auth){
-        List<JobResponse> jobs = jobService.getJobs(auth.getName());
+        List<JobResponse> jobs = jobService.getJobs(auth);
         return ResponseEntity.ok(jobs);
     }
     
     @GetMapping("/{jobId}")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<JobResponse> getJob(
             @PathVariable Long jobId){
         JobResponse job = jobService.getJob(jobId);

@@ -7,15 +7,18 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ippl.difability.dto.request.AdminLoginRequest;
 import com.ippl.difability.dto.request.GeneralLoginRequest;
 import com.ippl.difability.dto.request.RegistrationRequest;
+import com.ippl.difability.dto.response.AuthMeResponse;
 import com.ippl.difability.dto.response.AuthResponse;
 import com.ippl.difability.entity.Admin;
 import com.ippl.difability.entity.Company;
+import com.ippl.difability.entity.HumanResource;
 import com.ippl.difability.entity.JobSeeker;
 import com.ippl.difability.entity.User;
 import com.ippl.difability.enums.Role;
 import com.ippl.difability.exception.EmailAlreadyExistsException;
 import com.ippl.difability.exception.ForbiddenException;
 import com.ippl.difability.exception.InvalidCredentialsException;
+import com.ippl.difability.exception.UserNotFoundException;
 import com.ippl.difability.repository.AdminRepository;
 import com.ippl.difability.repository.UserRepository;
 import com.ippl.difability.security.JwtUtil;
@@ -37,6 +40,41 @@ public class AuthService {
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
 
+    public AuthMeResponse authMe(String username){
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+
+        Long responseId = user.getId();
+        Long responseCompanyId = null;
+        String responseFullName = null;
+
+        switch (user.getRole()) {
+            case HUMAN_RESOURCE -> {
+                HumanResource humanResource = (HumanResource) user;
+                responseFullName = humanResource.getFullName();
+                responseCompanyId = humanResource.getCompany().getId(); 
+            }
+            case COMPANY -> {
+                Company company = (Company) user;
+                responseFullName = company.getCompanyName(); 
+            }
+            case JOB_SEEKER -> {
+                JobSeeker jobSeeker = (JobSeeker) user;
+                responseFullName = jobSeeker.getFullName();
+            }
+            default -> throw new ForbiddenException();
+        }
+
+        return new AuthMeResponse(
+            responseId,
+            responseCompanyId,
+            responseFullName,
+            user.getUsername(),
+            user.getRole()
+        );
+    }
+
+
     public AuthResponse register(RegistrationRequest request){
         if(userRepository.existsByUsername(request.email())){
             throw new EmailAlreadyExistsException();
@@ -57,10 +95,16 @@ public class AuthService {
         logService.log(
             user.getUsername(),
             user.getRole().name(),
-            "REGISTER"
+            "LOGIN",
+            "User berhasil login"
         );
 
-        String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
+        String token = jwtUtil.generateToken(
+            user.getUsername(),
+            user.getRole(),
+            user.getId(),
+            user instanceof Company ? ((Company) user).getId() : null
+        );
 
         return new AuthResponse(
             token,
@@ -70,34 +114,92 @@ public class AuthService {
             user.isProfileCompleted()
         );
     }
+
+    // public AuthResponse login(GeneralLoginRequest request){
+    //     User user = userRepository.findByUsername(request.username())
+    //         .orElseThrow(InvalidCredentialsException::new);
+
+    //     if(user.getId() == 1){
+    //         throw new InvalidCredentialsException();
+    //     }    
+    //     if(!passwordEncoder.matches(request.password(), user.getPassword())){
+    //         throw new InvalidCredentialsException();
+    //     }
+        
+    //     logService.log(
+    //         user.getUsername(),
+    //         user.getRole().name(),
+    //         "LOGIN",
+    //         "User berhasil login"
+    //     );
+
+    //     String token = jwtUtil.generateToken(
+    //         user.getUsername(),
+    //         user.getRole(),
+    //         user.getId(),
+    //         user instanceof Company ? ((Company) user).getId() : null
+    //     );
+
+    //     return new AuthResponse(
+    //         token,
+    //         user.getId(),
+    //         user.getUsername(),
+    //         user.getRole(),
+    //         user.isProfileCompleted()
+    //     );
+    // }
 
     public AuthResponse login(GeneralLoginRequest request){
-        User user = userRepository.findByUsername(request.username())
-            .orElseThrow(InvalidCredentialsException::new);
+    User user = userRepository.findByUsername(request.username())
+        .orElseThrow(InvalidCredentialsException::new);
 
-        if(user.getId() == 1){
-            throw new InvalidCredentialsException();
-        }    
-        if(!passwordEncoder.matches(request.password(), user.getPassword())){
-            throw new InvalidCredentialsException();
-        }
-        
-        logService.log(
-            user.getUsername(),
-            user.getRole().name(),
-            "LOGIN"
+    if(user.getId() == 1){
+        throw new InvalidCredentialsException();
+    }    
+    if(!passwordEncoder.matches(request.password(), user.getPassword())){
+        throw new InvalidCredentialsException();
+    }
+    
+    logService.log(
+        user.getUsername(),
+        user.getRole().name(),
+        "LOGIN",
+        "User berhasil login"
+    );
+
+    String token;
+    if(user instanceof HumanResource hr){
+        token = jwtUtil.generateToken(
+            hr.getUsername(),
+            Role.HUMAN_RESOURCE,
+            hr.getId(),
+            hr.getCompany().getId()
         );
-
-        String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
-
-        return new AuthResponse(
-            token,
-            user.getId(),
+    } else if(user instanceof Company c){
+        token = jwtUtil.generateToken(
+            c.getUsername(),
+            Role.COMPANY,
+            c.getId(),
+            null
+        );
+    } else {
+        token = jwtUtil.generateToken(
             user.getUsername(),
             user.getRole(),
-            user.isProfileCompleted()
+            user.getId(),
+            null
         );
     }
+
+    return new AuthResponse(
+        token,
+        user.getId(),
+        user.getUsername(),
+        user.getRole(),
+        user.isProfileCompleted()
+    );
+}
+
 
     public AuthResponse loginAdmin(AdminLoginRequest request){
         Admin admin = adminRepository.findByUsername(request.username())
@@ -114,11 +216,17 @@ public class AuthService {
         logService.log(
             admin.getUsername(),
             admin.getRole().name(),
-            "LOGIN_ADMIN"
+            "LOGIN",
+            "Admin berhasil login"
         );
 
-        String token = jwtUtil.generateToken(admin.getUsername(), admin.getRole().name());
-        
+        String token = jwtUtil.generateToken(
+            admin.getUsername(),
+            admin.getRole(),
+            admin.getId(),
+            null
+        );
+
         return new AuthResponse(
             token,
             admin.getId(),

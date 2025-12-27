@@ -19,6 +19,7 @@ import com.ippl.difability.exception.UserNotFoundException;
 import com.ippl.difability.repository.CompanyRepository;
 import com.ippl.difability.repository.HumanResourceRepository;
 import com.ippl.difability.repository.UserRepository;
+import com.ippl.difability.security.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +32,8 @@ public class CompanyService {
     private final HumanResourceRepository humanResourceRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+
 
     public CompanyDetailResponse getCompanyProfile(Long id){
         Company company = companyRepository.findById(id)
@@ -77,33 +80,40 @@ public class CompanyService {
         logService.log(
             username,
             company.getRole().name(),
-            "UPDATE_PROFILE"
+            "UPDATE_PROFILE",
+            "Memperbarui profil perusahaan: " + company.getCompanyName()
         );
     }
 
-    public HrCredentialResponse generateHrAccount(String username){
-        Company company = companyRepository.findByUsername(username)
-            .orElseThrow(UserNotFoundException::new);
+public HrCredentialResponse generateHrAccount(String username){
+    Company company = companyRepository.findByUsername(username)
+        .orElseThrow(UserNotFoundException::new);
 
-        String newUsername = generateUsername(username);
-        String newPassword = generatePassword();
+    companyRepository.saveAndFlush(company);
 
-        HumanResource humanResource = new HumanResource();
-        humanResource.setUsername(newUsername);
-        humanResource.setPassword(passwordEncoder.encode(newPassword));
-        humanResource.setRole(Role.HUMAN_RESOURCE);
-        humanResource.setCompany(company);
-        humanResourceRepository.save(humanResource);
+    String newUsername = generateUsername(username);
+    String newPassword = generatePassword();
 
-        logService.log(
-            username,
-            company.getRole().name(), 
-            "CREATE_HR"
-        );
+    HumanResource humanResource = new HumanResource();
+    humanResource.setUsername(newUsername);
+    humanResource.setPassword(passwordEncoder.encode(newPassword));
+    humanResource.setRole(Role.HUMAN_RESOURCE);
+    humanResource.setCompany(company);
+    humanResource.setIsActive(true);
+    humanResourceRepository.save(humanResource);
 
-        return new HrCredentialResponse(newUsername, newPassword);
-    }
-    
+    String token = jwtUtil.generateToken(newUsername, Role.HUMAN_RESOURCE, humanResource.getId(), company.getId());
+
+    logService.log(
+        username,
+        company.getRole().name(), 
+        "CREATE_HR",
+        "Membuat akun Human Resource baru dengan username: " + newUsername
+    );
+
+    return new HrCredentialResponse(newUsername, newPassword, token);
+}
+
     public List<HumanResourceDetailResponse> getHumanResources(String username){
         Company company = companyRepository.findByUsername(username)
             .orElseThrow(UserNotFoundException::new);
@@ -117,16 +127,14 @@ public class CompanyService {
     }
 
     private String generateUsername(String username){
-        boolean usernameExists;
         String newUsername;
-
+        
         do{
             String baseName = username.split("@")[0];
             String uniqueId = RandomStringUtils.secure().next(6, true, true);
             newUsername = baseName + "_hr_" + uniqueId;
-            usernameExists = !userRepository.existsByUsername(username);
-        }while(usernameExists);
-
+        } while(userRepository.existsByUsername(newUsername)); 
+        
         return newUsername;
     }
     

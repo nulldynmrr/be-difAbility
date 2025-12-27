@@ -67,7 +67,8 @@ public class JobSeekerService {
         logService.log(
             username,
             jobSeeker.getRole().name(),
-            "UPDATE_PROFILE"
+            "UPDATE_PROFILE",
+            "Memperbarui profil Job Seeker: " + jobSeeker.getFullName()
         );
     }
 
