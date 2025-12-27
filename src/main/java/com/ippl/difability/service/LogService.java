@@ -56,17 +56,5 @@ public class LogService {
             log.getCreatedAt()
         );
     }
-
-    // public List<LogResponse> getLogsByUsername(String username){
-    //     return mapToList(
-    //         logRepository.findByActorUsernameOrderByCreatedAtDesc(username)
-    //     );
-    // }
- 
-    // public List<LogResponse> getLogsByAction(String action){
-    //     return mapToList(
-    //         logRepository.findByActionOrderByCreatedAtDesc(action)
-    //     );
-    // }
 }
  

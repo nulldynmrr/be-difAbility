@@ -4,6 +4,11 @@
 
 **Base URL:** `/api/auth`
 
+### Me
+
+**GET** `/me`  
+Access: Authenticated
+
 ### Register
 
 **POST** `/registration`  
@@ -220,6 +225,11 @@ Access: HUMAN_RESOURCE, COMPANY
 ## Application
 
 **Base URL:** `/api`
+
+### Get List of Applications
+
+**GET** `/jobs/{jobId}/applications`
+Access: HUMAN_RESOURCE
 
 ### Get Application
 
