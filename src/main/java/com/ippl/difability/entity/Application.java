@@ -3,9 +3,8 @@ package com.ippl.difability.entity;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ippl.difability.enums.ApplicationStatus;
 
 import jakarta.persistence.Column;
@@ -34,12 +33,11 @@ public class Application {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_seeker_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private JobSeeker jobSeeker;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonBackReference
     private Job job;
 
     @Column(name = "cover_letter", length = 500)
@@ -47,7 +45,7 @@ public class Application {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "application_status", nullable = false, length = 15)
-    private ApplicationStatus applicationStatus = ApplicationStatus.UNDER_REVIEW;
+    private ApplicationStatus status = ApplicationStatus.UNDER_REVIEW;
 
     @Column(name = "hr_notes", length = 500)
     private String hrNotes;

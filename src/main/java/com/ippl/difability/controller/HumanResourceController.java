@@ -3,7 +3,6 @@ package com.ippl.difability.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,14 +44,5 @@ public class HumanResourceController {
             Authentication auth){
         humanResourceService.updateHumanResourceProfile(auth.getName(), request);
         return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/{hrId}")
-    @PreAuthorize("hasAuthority('COMPANY')")
-    public ResponseEntity<Void> deleteHumanResource(
-            @PathVariable Long hrId,
-            Authentication auth){
-        humanResourceService.deleteHumanResource(auth.getName(), hrId);
-        return ResponseEntity.noContent().build();
     }
 }

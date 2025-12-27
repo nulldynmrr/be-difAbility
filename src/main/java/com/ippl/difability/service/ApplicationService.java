@@ -1,8 +1,6 @@
 package com.ippl.difability.service;
 
 import java.util.List;
-
-import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.ippl.difability.dto.request.ApplicationRequest;
@@ -41,6 +39,22 @@ public class ApplicationService {
     // cek hr, job, application
     // cek hr.company == job.company
     // cek application.job == job
+     public List<ApplicationResponse> getApplications(String username, Long jobId){
+        HumanResource humanResource = humanResourceRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+
+        Job job = jobRepository.findById(jobId)
+            .orElseThrow(JobNotFoundException::new);
+
+        if(!humanResource.getCompany().getId().equals(job.getCompany().getId())){
+            throw new ForbiddenException();
+        }
+        
+        List<Application> applications = applicationRepository.findByJobId(jobId);
+
+        return mapToList(applications);
+    }
+
     public ApplicationResponse getApplication(String username, Long jobId, Long applicationId){
         HumanResource humanResource = humanResourceRepository.findByUsername(username)
             .orElseThrow(UserNotFoundException::new);
@@ -62,7 +76,8 @@ public class ApplicationService {
         logService.log(
             username,
             humanResource.getRole().name(),
-            "VIEW_APPLICATION"
+            "VIEW_APPLICATION",
+            "Melihat aplikasi ID: " + application.getId() + " untuk job ID: " + job.getId()
         );
 
         return mapToResponse(application);
@@ -103,7 +118,7 @@ public class ApplicationService {
         Application application = applicationRepository.findById(applicationId)
             .orElseThrow(ApplicationNotFoundException::new);
 
-        if(application.getApplicationStatus() != ApplicationStatus.UNDER_REVIEW){
+        if(application.getStatus() != ApplicationStatus.UNDER_REVIEW){
             throw new ApplicationReviewedException();
         }
         
@@ -115,10 +130,9 @@ public class ApplicationService {
             throw new ForbiddenException();
         }
 
-        application.setApplicationStatus(request.status());
+        application.setStatus(request.status());
         application.setHrNotes(request.hrNotes());
-        
-        if(application.getApplicationStatus() == ApplicationStatus.ACCEPTED){
+        if(application.getStatus() == ApplicationStatus.ACCEPTED){
             job.setPublicationStatus(PublicationStatus.CLOSED);
         }
         
@@ -160,8 +174,6 @@ public class ApplicationService {
             application.getJobSeeker().getId(),
             application.getJobSeeker().getCvDocumentPath(),
             application.getCoverLetter(),
-            application.getHrNotes(),
-            application.getApplicationStatus(),
             application.getAppliedAt()
         );
     }
