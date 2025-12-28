@@ -30,10 +30,10 @@ public class Log {
     @Column(name = "action", nullable = false, length = 50, updatable = false)
     private String action;      
 
-    @Column(name = "description", nullable = false, length = 75, updatable = false)
-    private String description;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "description", nullable = false)
+    private String description;
 }

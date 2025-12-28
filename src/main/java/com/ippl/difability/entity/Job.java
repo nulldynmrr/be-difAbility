@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ippl.difability.enums.DisabilityType;
 import com.ippl.difability.enums.EducationLevel;
 import com.ippl.difability.enums.JobType;
@@ -40,9 +41,9 @@ public class Job {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", nullable = false)
-    @JsonBackReference
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Company company;
-
+    
     @Column(name = "title", nullable = false, length = 50)
     private String title;
 

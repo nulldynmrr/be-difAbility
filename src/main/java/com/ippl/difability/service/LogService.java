@@ -23,35 +23,23 @@ public class LogService {
         log.setActorUsername(actorUsername);
         log.setActorRole(actorRole);
         log.setAction(action);
-        log.setDescription(description);
+        log.setDescription(description != null ? description : "No additional info");
         logRepository.save(log);
     }
 
-    public List<LogResponse> findAllLogs(){
-        return mapList(
+    public List<LogResponse> getLogs(){
+        return mapToList(
             logRepository.findAllByOrderByCreatedAtDesc()
         );
     }
 
-    public List<LogResponse> findLogsByUsername(String username){
-        return mapList(
-            logRepository.findByActorUsernameOrderByCreatedAtDesc(username)
-        );
-    }
-
-    public List<LogResponse> findLogsByRole(Role role){
-        return mapList(
+    public List<LogResponse> getLogsByRole(Role role){
+        return mapToList(
             logRepository.findByActorRoleOrderByCreatedAtDesc(role.name())
         );
     }
-    
-    public List<LogResponse> findLogsByAction(String action){
-        return mapList(
-            logRepository.findByActionOrderByCreatedAtDesc(action)
-        );
-    }
-    
-    private List<LogResponse> mapList(List<Log> logs) {
+
+    private List<LogResponse> mapToList(List<Log> logs){
         return logs.stream()
             .map(this::mapToResponse)
             .toList();
@@ -63,9 +51,9 @@ public class LogService {
             log.getActorUsername(),
             log.getActorRole(),
             log.getAction(),
-            log.getDescription(),
             log.getCreatedAt()
         );
     }
+
 }
  

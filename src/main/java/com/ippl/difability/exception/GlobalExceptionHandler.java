@@ -11,8 +11,8 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -21,7 +21,7 @@ import com.ippl.difability.dto.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
-@ControllerAdvice
+@RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
     // 400 Bad Request
@@ -29,14 +29,15 @@ public class GlobalExceptionHandler {
         MethodArgumentNotValidException.class,
         MethodArgumentTypeMismatchException.class,
         HttpMessageNotReadableException.class,
-        IncompleteRequestException.class
+        IncompleteRequestException.class,
+        InvalidFileException.class
     })
     public ResponseEntity<ErrorResponse> handleBadRequests(Exception exception, HttpServletRequest request){
         Map<String, String> errors = null;
         String message = "Invalid URL or Request Body.";
 
         // DTO
-        if (exception instanceof MethodArgumentNotValidException validationException){
+        if(exception instanceof MethodArgumentNotValidException validationException){
             errors = validationException.getBindingResult().getFieldErrors()
                 .stream()
                 .collect(Collectors.toMap(
@@ -48,27 +49,32 @@ public class GlobalExceptionHandler {
             message = "Input validation failed.";
         }
         // JSON
-        else if (exception instanceof HttpMessageNotReadableException notReadableException){
-            if (notReadableException.getCause() instanceof InvalidFormatException ife) {
+        else if(exception instanceof HttpMessageNotReadableException notReadableException){
+            if(notReadableException.getCause() instanceof InvalidFormatException invalidFormat){
                 message = String.format("Invalid value '%s'. Expected a valid constant for type %s.", 
-                    ife.getValue(), ife.getTargetType().getSimpleName());
+                    invalidFormat.getValue(), invalidFormat.getTargetType().getSimpleName());
             } else {
                 message = "Bad JSON request.";
             }
         }
         
         // API URL
-        else if (exception instanceof MethodArgumentTypeMismatchException mismatchException) {
-            String requiredType = mismatchException.getRequiredType() != null 
-                ? mismatchException.getRequiredType().getSimpleName() 
+        else if (exception instanceof MethodArgumentTypeMismatchException mismatch) {
+            String requiredType = mismatch.getRequiredType() != null 
+                ? mismatch.getRequiredType().getSimpleName() 
                 : "Value";
             message = String.format("Type mismatch for parameter '%s'. Received '%s', expected %s.",
-                mismatchException.getName(), mismatchException.getValue(), requiredType);
+                mismatch.getName(), mismatch.getValue(), requiredType);
         }
 
         // Update profile
         else if (exception instanceof IncompleteRequestException incomplete) {
             message = incomplete.getMessage();
+        }
+
+        // Invalid file type
+        else if(exception instanceof InvalidFileException invalidFile){
+            message = invalidFile.getMessage();
         }
 
         return buildError(HttpStatus.BAD_REQUEST, message, request, errors);
@@ -110,7 +116,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
         EmailAlreadyExistsException.class,
         DuplicateApplicationException.class,
-        JobClosedException.class
+        JobClosedException.class,
+        ApplicationReviewedException.class
     })
     public ResponseEntity<ErrorResponse> handleConflict(
             RuntimeException exception, HttpServletRequest request){

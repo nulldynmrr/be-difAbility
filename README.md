@@ -1,346 +1,340 @@
-# Fitur & API Endpoint
+# Features & API Endpoints
 
-## AUTHENTICATION
+## Auth
+
+**Base URL:** `/api/auth`
+
+### Me
+
+**GET** `/me`  
+Access: Authenticated
 
 ### Register
 
-**POST** /api/auth/registrations  
-Header: None
-
-- Job Seeker
-- Company
+**POST** `/registration`  
+Access: Public
 
 ```json
 {
-  "email": "...",
-  "password": "..."
-  "role": "JOB_SEEKER/COMPANY"
+  "email": "user@example.com",
+  "password": "password123",
+  "role": "Job Seeker/Company"
 }
 ```
 
 ### Login
 
-**POST** /api/auth/sessions  
-Header: None
-
-- Job Seeker
-- Company
-- Human Resource
+**POST** `/session`  
+Access: Public
 
 ```json
 {
-  "identifier": "email/username",
-  "password": "..."
+  "username": "user@example.com",
+  "password": "password123"
 }
 ```
 
 ### Login - Admin
 
-**POST** /api/auth/admin-sessions  
-Header: None
-
-- Admin
+**POST** `/admin-session`  
+Access: Public
 
 ```json
 {
-  "email": "admin@ippl.com",
-  "password": "Admin1234",
-  "otp": "..."
+  "email": "admin@difability.com",
+  "password": "Admin123",
+  "otp": "123456"
 }
 ```
 
----
+### Logout
 
-## JOBSEEKER
-
-### Update Profile
-
-**PATCH** /api/jobseeker/profile  
-Header: Bearer Token
-
-```json
-{
-  "name": "...",
-  "about": "...",
-  "address": "...",
-  "disabilityType": "Visual/Hearing/Mobility/Cognitive",
-  "skills": ["...", "...", "..."],
-  "educationLevel": "...",
-  "ppImgPath": "/...",
-  "cvFilePath": "/...",
-  "certifFilePaths": ["/...", "/..."]
-}
-```
-
-### Create Application
-
-**POST** /api/jobs/{jobId}/applications  
-Header: Bearer Token
+**DELETE** `/session`  
+Access: Authenticated Users
 
 ---
 
-## COMPANY
+## User
 
-### Update Profile
+**Base URL:** `/api/users`
 
-**GET** /api/company/profile  
-Header: Bearer Token
+### Get All Users
 
-**POST** /api/company/profile  
-Header: Bearer Token
+**GET** `/`  
+Access: ADMIN
 
-**PATCH** /api/company/profile  
-Header: Bearer Token
+### Delete User by Id
+
+**DELETE** `/{userId}`  
+Access: ADMIN
+
+---
+
+## Company
+
+**Base URL:** `/api/companies`
+
+### Get Company Profile (Public/Shared)
+
+**GET** `/{companyId}/profile`  
+Access: Authenticated Users
+
+### Get My Profile
+
+**GET** `/me/profile`  
+Access: COMPANY
+
+### Update My Profile
+
+**PATCH** `/me/profile`  
+Access: COMPANY
 
 ```json
 {
-  "name": "...",
-  "description": "...",
-  "address": "...",
-  "industryType": "Technology/Healthcare/Education/Finance/E-Commerce/Media/Others",
-  "websiteUrl": "...",
-  "logoImgPath": "/...",
-  "linkedinUrl": "",
-  "youtubeUrl": "",
-  "instagramUrl": "",
-   "twitterUrl": "",
+  "name": "Company Name",
+  "description": "Description...",
+  "address": "Address...",
+  "industryType": "Technology",
+  "websiteUrl": "https://...",
+  "linkedinUrl": "https://...",
+  "youtubeUrl": "https://...",
+  "instagramUrl": "https://...",
+  "twitterUrl": "https://...",
+  "logoImgPath": "/uploads/images/...",
+  "agreeToTerms": "true"
 }
 ```
 
 ### Generate HR Account
 
-**POST** /api/company/hr-accounts
-Header: Bearer Token
+**POST** `/me/humanresources`  
+Access: COMPANY
+
+### Get Human Resources List
+
+**GET** `/me/humanresources`  
+Access: COMPANY
 
 ---
 
-## ADMIN
+## Job Seeker
 
-### Activity Log
+**Base URL:** `/api/jobseekers`
 
-**GET** /api/activity-logs
-Header: Bearer Token
+### Get Job Seeker Profile (Public/Shared)
 
----
+**GET** `/{jobseekerId}/profile`  
+Access: Authenticated Users
 
-## HUMAN RESOURCE
+### Get My Profile
 
-### Create Job
+**GET** `/me/profile`  
+Access: JOB_SEEKER
 
-**POST** /api/jobs  
-Header: Bearer Token
+### Update My Profile
+
+**PATCH** `/me/profile`  
+Access: JOB_SEEKER
 
 ```json
 {
-  "title": "...",
-  "description": "...",
-  "salary": 1000,
-  "minimumEducation": "High School/College Student/Bachelor/Master/Doctorate",
-  "minimumYearsExperience": 1,
-  "compatibleDisabilities": ["Visual/Hearing/Mobility/Cognitive", "..."],
+  "name": "Full Name",
+  "about": "Summary...",
+  "address": "Address...",
+  "disabilityType": "Visual",
+  "skills": ["Java", "Spring", "SQL"],
+  "educationLevel": "Bachelor",
+  "academicYear": "2024",
+  "jobType": "Full Time",
+  "ppImgPath": "uploads/images/...",
+  "cvFilePath": "uploads/documents/...",
+  "certifFilePaths": ["/uploads/documents/...1", "/uploads/documents/...2"]
+}
+```
+
+---
+
+## Human Resource
+
+**Base URL:** `/api/humanresources`
+
+### Get HR Profile (Public/Shared)
+
+**GET** `/{hrId}/profile`  
+Access: Authenticated Users
+
+### Get My Profile
+
+**GET** `/me/profile`  
+Access: COMPANY
+
+### Update My Profile
+
+**PATCH** `/me/profile`  
+Access: HUMAN_RESOURCE
+
+```json
+{
+  "fullName": "Full Name",
+  "contact": "081124124124",
+  "ppImagePath": "uploads/images/..."
+}
+```
+
+---
+
+## Job
+
+**Base URL:** `/api/jobs`
+
+### Get All Jobs
+
+**GET** `/`  
+Access: Authenticated Users
+
+### Get Job by Id
+
+**GET** `/{jobId}`  
+Access: Authenticated Users
+
+### Create Job
+
+**POST** `/`  
+Access: HUMAN_RESOURCE, COMPANY
+
+```json
+{
+  "title": "Software Engineer",
+  "description": "Job details...",
+  "salary": 5000000,
+  "minimumEducation": "Bachelor",
+  "minimumYearsExperience": 2,
+  "compatibleDisabilities": ["Hearing", "Mobility"],
   "registrationDeadline": "2025-12-31T23:59:59",
   "publicationStatus": "Open"
 }
 ```
 
-### Review Job
+### Delete Job
 
-**PATCH** /api/applications/{applicationId}/  
-Header: Bearer Token
+**DELETE** `/{jobId}`  
+Access: HUMAN_RESOURCE, COMPANY
+
+---
+
+## Application
+
+**Base URL:** `/api`
+
+### Get List of Applications
+
+**GET** `/jobs/{jobId}/applications`
+Access: HUMAN_RESOURCE
+
+### Get Application
+
+**GET** `/jobs/{jobId}/applications/{applicationId}`  
+Access: HUMAN_RESOURCE
+
+### Create Application
+
+**POST** `/jobs/{jobId}/applications`  
+Access: JOB_SEEKER
 
 ```json
 {
-  "status": "Accepted/Declined",
-  "hrNotes": "..."
+  "coverLetter": "I am interested in this position..."
 }
 ```
 
+### Review Application
 
-# CHAT API (REST & WebSocket)
-
-Dokumentasi ini menjelaskan spesifikasi **Chat** antara **Jobseeker** dan **Company/HR** berdasarkan **Job**.
-
----
-
-## 🔐 Authentication
-
-Semua endpoint **REST API** dan **WebSocket** menggunakan:
-
-```
-Authorization: Bearer <TOKEN>
-```
-
----
-
-## 📌 REST API
-
-### 1️⃣ Create / Get Conversation
-
-Membuat **conversation baru** atau **mengambil conversation yang sudah ada** berdasarkan `jobId` dan `jobSeekerId`.
-
-> ⚠️ Jika conversation sudah ada → **tidak membuat baru**
-
-#### Endpoint
-
-```
-POST /api/conversations
-```
-
-#### Request Body
+**PATCH** `/jobs/{jobId}/applications/{applicationId}`  
+Access: HUMAN_RESOURCE
 
 ```json
 {
-  "jobId": 10,
-  "jobSeekerId": 5,
-  "initialMessage": "Halo, saya tertarik dengan lowongan ini"
+  "status": "Accepted",
+  "hrNotes": "Candidate meets requirements."
 }
 ```
 
-| Field          | Type   | Required | Description           |
-| -------------- | ------ | -------- | --------------------- |
-| jobId          | number | ✅        | ID lowongan pekerjaan |
-| jobSeekerId    | number | ✅        | ID jobseeker          |
-| initialMessage | string | ❌        | Pesan awal (opsional) |
+### Delete Application
 
-#### Response
-
-```json
-{
-  "id": 3,
-  "jobId": 10,
-  "jobTitle": "Backend Developer",
-  "companyId": 2,
-  "companyName": "PT Contoh",
-  "jobSeekerId": 5,
-  "jobSeekerName": "andi",
-  "status": "ACTIVE",
-  "startedAt": "2025-12-15T10:00:00",
-  "lastMessageAt": "2025-12-15T10:01:00",
-  "lastMessageContent": "Halo, saya tertarik...",
-  "unreadCount": 0,
-  "recentMessages": []
-}
-```
+**DELETE** `/applications/{applicationId}`  
+Access: JOB_SEEKER
 
 ---
 
-### 2️⃣ Get User Conversations
+## Log
 
-Mengambil **seluruh conversation** milik user (Jobseeker / Company / HR).
+**Base URL:** `/api/logs`
 
-#### Endpoint
+### Get All Logs
 
-```
-GET /api/conversations
-```
+**GET** `/`  
+Access: ADMIN
 
-#### Response
+### Get Logs by Role
 
-```json
-[
-  {
-    "id": 3,
-    "jobId": 10,
-    "jobTitle": "Backend Developer",
-    "companyId": 2,
-    "companyName": "PT Contoh",
-    "jobSeekerId": 5,
-    "jobSeekerName": "andi",
-    "status": "ACTIVE",
-    "startedAt": "2025-12-15T10:00:00",
-    "lastMessageAt": "2025-12-15T10:01:00",
-    "lastMessageContent": "Halo...",
-    "unreadCount": 2,
-    "recentMessages": null
-  }
-]
-```
+**GET** `/roles/{role}`  
+Access: ADMIN
 
 ---
 
-### 3️⃣ Get Messages in Conversation
+## File
 
-Mengambil isi chat dalam conversation tertentu **dan otomatis menandai pesan sebagai telah dibaca**.
+**Base URL:** `/api/files`
 
-#### Endpoint
+### Upload Image
 
-```
-GET /api/conversations/{conversationId}/messages
-```
+**POST** `/upload/image`  
+Type: multipart/form-data (png/jpg/jpeg)  
+Access: Authenticated Users
 
-#### Response
+### Upload Document
 
-```json
-[
-  {
-    "id": 20,
-    "conversationId": 3,
-    "senderId": 5,
-    "senderName": "andi",
-    "senderRole": "JOBSEEKER",
-    "messageContent": "Halo...",
-    "createdAt": "2025-12-15T10:01:00",
-    "isRead": true
-  }
-]
-```
+**POST** `/upload/document`  
+Type: multipart/form-data (pdf)  
+Access: Authenticated Users
+
+### View File
+
+**GET** `/view`  
+Access: Authenticated Users
 
 ---
 
-## ⚡ WebSocket (Realtime Chat)
+## Enum
 
-### 1️⃣ Send Message
+**Base URL:** `/api/enums`
 
-Mengirim pesan chat secara realtime.
+### Application Statuses
 
-#### WS Destination
+**GET** `/application-statuses`  
+Values: Under Review | Accepted | Declined
 
-```
-/app/chat.send
-```
+### Disability Types
 
-#### Payload
+**GET** `/disability-types`  
+Values: Visual | Hearing | Mobility | Cognitive
 
-```json
-{
-  "conversationId": 3,
-  "messageContent": "Baik, terima kasih"
-}
-```
+### Education Levels
 
-#### Broadcast To
+**GET** `/education-levels`  
+Values: High School | College Student | Bachelor | Master | Doctorate
 
-```
-/topic/conversation/{conversationId}
-```
+### Industry Types
 
----
+**GET** `/industry-types`  
+Values: Technology | Healthcare | Education | Finance | E-Commerce | Media | Others
 
-### 2️⃣ Typing Indicator
+### Job Types
 
-Mengirim notifikasi bahwa user sedang mengetik.
+**GET** `/job-types`  
+Values: Full Time | Freelance | Contract | Remote | Internship
 
-> ⚠️ Tidak disimpan ke database
+### Publication Statuses
 
-#### WS Destination
-
-```
-/app/chat.typing
-```
-
-#### Payload
-
-```json
-{
-  "conversationId": 3,
-  "typing": true
-}
-```
-
-#### Broadcast To
-
-```
-/topic/conversation/{conversationId}/typing
-```
-
----
+**GET** `/publication-statuses`  
+Values: Open | Closed

@@ -1,11 +1,13 @@
 package com.ippl.difability.controller;
 
-import java.security.Principal;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,18 +27,33 @@ public class JobController {
     private final JobService jobService;
 
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<JobResponse>> getJobs(Principal principal){
-        List<JobResponse> jobs = jobService.getJobs(principal.getName());
+    public ResponseEntity<List<JobResponse>> getJobs(Authentication auth){
+        List<JobResponse> jobs = jobService.getJobs(auth);
         return ResponseEntity.ok(jobs);
     }
-
+    
+    @GetMapping("/{jobId}")
+    public ResponseEntity<JobResponse> getJob(
+            @PathVariable Long jobId){
+        JobResponse job = jobService.getJob(jobId);
+        return ResponseEntity.ok(job);
+    }
+    
     @PostMapping
-    @PreAuthorize("hasAuthority('HUMAN_RESOURCE')")
+    @PreAuthorize("hasAuthority('HUMAN_RESOURCE') or hasAuthority('COMPANY')")
     public ResponseEntity<Void> createJob(
             @Valid @RequestBody JobRequest request,
-            Principal principal){
-        jobService.createJob(principal.getName(), request);
+            Authentication auth){
+        jobService.createJob(auth.getName(), request);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{jobId}")
+    @PreAuthorize("hasAuthority('HUMAN_RESOURCE') or hasAuthority('COMPANY')")
+    public ResponseEntity<Void> deleteJob(
+            @PathVariable Long jobId,
+            Authentication auth){
+        jobService.deletejob(auth.getName(), jobId);
+        return ResponseEntity.noContent().build();
     }
 }

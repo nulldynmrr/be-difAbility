@@ -1,18 +1,11 @@
 package com.ippl.difability.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ippl.difability.enums.IndustryType;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -39,12 +32,9 @@ public class Company extends User {
     @Column(name = "website_url", length = 255)
     private String websiteUrl;
 
-    @Column(name = "logo_image_path", length = 100)
-    private String logoImagePath;
-
     @Column(name = "linkedin_url", length = 255)
     private String linkedinUrl;
-
+    
     @Column(name = "youtube_url", length = 255)
     private String youtubeUrl;
 
@@ -53,20 +43,10 @@ public class Company extends User {
 
     @Column(name = "twitter_url", length = 255)
     private String twitterUrl;
+    
+    @Column(name = "logo_image_path", length = 100)
+    private String logoImagePath;
 
-    @Column(name = "agree_to_terms")
-    private Boolean agreeToTerms;
-
-    @OneToMany(
-        mappedBy = "company", cascade = CascadeType.ALL,
-        orphanRemoval = true, fetch = FetchType.LAZY
-    )
-    private List<Job> jobList = new ArrayList<>();
-
-    @OneToMany(
-        mappedBy = "company", cascade = CascadeType.ALL,
-        orphanRemoval = true, fetch = FetchType.LAZY
-    )
-    @JsonManagedReference
-    private List<HumanResource> humanResources = new ArrayList<>();
+    @Column(name = "agree_to_terms", length = 10)
+    private Boolean agreeToTerms = false;
 }

@@ -24,7 +24,7 @@ import lombok.Setter;
 @Getter @Setter
 @Entity
 @Table(name = "applications", uniqueConstraints = {
-       @UniqueConstraint(columnNames = {"job_seeker_id", "job_id"})
+    @UniqueConstraint(columnNames = {"job_seeker_id", "job_id"})
 })
 public class Application {
     @Id

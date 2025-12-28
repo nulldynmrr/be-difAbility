@@ -11,24 +11,23 @@ import java.util.Optional;
 
 @Repository
 public interface ConversationRepository extends JpaRepository<Conversation, Long> {
-    
-    // cari percakapn berdasar job seeker
     Optional<Conversation> findByJobIdAndJobSeekerId(Long jobId, Long jobSeekerId);
 
-    // all percakapan job seeker
     List<Conversation> findByJobSeekerIdOrderByLastMessageDesc(Long jobSeekerId);
 
-    // all percakapan company
     List<Conversation> findByCompanyIdOrderByLastMessageDesc(Long companyId);
 
-    // all percakapn HR
     List<Conversation> findByHrUserIdOrderByLastMessageDesc(Long hrUserId);
 
-    @Query("SELECT c FROM Conversation c WHERE c.jobSeeker.id = :userId OR c.company.id = :userId OR c.hrUser.id = :userId ORDER BY c.lastMessage DESC")
+    @Query("SELECT c FROM Conversation c " +
+           "WHERE c.jobSeeker.id = :userId OR c.company.id = :userId OR c.hrUser.id = :userId " +
+           "ORDER BY c.lastMessage DESC")
     List<Conversation> findByUserIdOrderByLastMessageDesc(@Param("userId") Long userId);
 
-    @Query("SELECT COUNT(DISTINCT m.conversation) FROM Message m WHERE m.conversation.id IN " +
-        "(SELECT c.id FROM Conversation c WHERE c.jobSeeker.id = :userId OR c.company.id = :userId OR c.hrUser.id = :userId)" +
-        "AND m.sender.id != :userId AND m.isRead = false")
+    @Query("SELECT COUNT(DISTINCT m.conversation) FROM Message m " +
+           "WHERE m.conversation.id IN (" +
+           "  SELECT c.id FROM Conversation c " +
+           "  WHERE c.jobSeeker.id = :userId OR c.company.id = :userId OR c.hrUser.id = :userId" +
+           ") AND m.sender.id != :userId AND m.isRead = false")
     Long countUnreadConversations(@Param("userId") Long userId);
 }

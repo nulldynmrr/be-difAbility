@@ -11,7 +11,7 @@ public class CookieUtil {
     public static void setJwtCookie(HttpServletResponse response, String token, long maxAgeSeconds) {
         ResponseCookie cookie = ResponseCookie.from("token", token)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(maxAgeSeconds)
                 .sameSite("None")

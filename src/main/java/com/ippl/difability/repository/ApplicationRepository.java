@@ -14,6 +14,7 @@ import com.ippl.difability.entity.Job;
 public interface ApplicationRepository extends JpaRepository<Application, Long>{
     List<Application> findByJobSeekerId(Long jobSeekerId);
     List<Application> findByJobId(Long jobId);
+    Optional<Application> findByIdAndJobCompanyId(Long applicationId, Long id);
     boolean existsByJobSeekerAndJob(JobSeeker jobSeeker, Job job);
-    Optional<Application> findByIdAndJobCompanyId(Long applicationId, Long companyId);
+    boolean existsByJobSeekerIdAndJobCompanyId(Long jobSeekerId, Long companyId);
 }

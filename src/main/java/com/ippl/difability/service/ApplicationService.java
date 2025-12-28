@@ -1,9 +1,11 @@
 package com.ippl.difability.service;
 
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.ippl.difability.dto.request.ApplicationRequest;
 import com.ippl.difability.dto.request.ApplicationReviewRequest;
+import com.ippl.difability.dto.response.ApplicationResponse;
 import com.ippl.difability.entity.Application;
 import com.ippl.difability.entity.HumanResource;
 import com.ippl.difability.entity.Job;
@@ -11,6 +13,7 @@ import com.ippl.difability.entity.JobSeeker;
 import com.ippl.difability.enums.ApplicationStatus;
 import com.ippl.difability.enums.PublicationStatus;
 import com.ippl.difability.exception.ApplicationNotFoundException;
+import com.ippl.difability.exception.ApplicationReviewedException;
 import com.ippl.difability.exception.DuplicateApplicationException;
 import com.ippl.difability.exception.ForbiddenException;
 import com.ippl.difability.exception.JobNotFoundException;
@@ -33,6 +36,53 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final LogService logService;
 
+    // cek hr, job, application
+    // cek hr.company == job.company
+    // cek application.job == job
+     public List<ApplicationResponse> getApplications(String username, Long jobId){
+        HumanResource humanResource = humanResourceRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+
+        Job job = jobRepository.findById(jobId)
+            .orElseThrow(JobNotFoundException::new);
+
+        if(!humanResource.getCompany().getId().equals(job.getCompany().getId())){
+            throw new ForbiddenException();
+        }
+        
+        List<Application> applications = applicationRepository.findByJobId(jobId);
+
+        return mapToList(applications);
+    }
+
+    public ApplicationResponse getApplication(String username, Long jobId, Long applicationId){
+        HumanResource humanResource = humanResourceRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+
+        Job job = jobRepository.findById(jobId)
+            .orElseThrow(JobNotFoundException::new);
+
+        Application application = applicationRepository.findById(applicationId)
+            .orElseThrow(ApplicationNotFoundException::new);
+
+        if(!humanResource.getCompany().getId().equals(job.getCompany().getId())){
+            throw new ForbiddenException();
+        }
+        
+        if(!application.getJob().getId().equals(job.getId())){
+            throw new ForbiddenException();
+        }
+
+        logService.log(
+            username,
+            humanResource.getRole().name(),
+            "VIEW_APPLICATION",
+            "Melihat aplikasi ID: " + application.getId() + " untuk job ID: " + job.getId()
+        );
+
+        return mapToResponse(application);
+    }
+
     public void createApplication(String username, Long jobId, ApplicationRequest request){
         JobSeeker jobSeeker = jobSeekerRepository.findByUsername(username)
             .orElseThrow(UserNotFoundException::new);
@@ -54,35 +104,83 @@ public class ApplicationService {
             username,
             jobSeeker.getRole().name(),
             "CREATE_APPLICATION",
-            "Created Application." 
-        );
+            "Membuat aplikasi untuk job ID: " + job.getId()
+)       ;
     }
 
-    public void reviewApplication(String username, Long applicationId, ApplicationReviewRequest request){
+    public void reviewApplication(String username, Long jobId, Long applicationId, ApplicationReviewRequest request){
         HumanResource humanResource = humanResourceRepository.findByUsername(username)
             .orElseThrow(UserNotFoundException::new);
 
+        Job job = jobRepository.findById(jobId)
+            .orElseThrow(JobNotFoundException::new);
+
         Application application = applicationRepository.findById(applicationId)
             .orElseThrow(ApplicationNotFoundException::new);
-        
-        Job job = application.getJob();
 
-        if(!job.getCompany().getId().equals(humanResource.getCompany().getId())){
+        if(application.getStatus() != ApplicationStatus.UNDER_REVIEW){
+            throw new ApplicationReviewedException();
+        }
+        
+        if(!humanResource.getCompany().getId().equals(job.getCompany().getId())){
+            throw new ForbiddenException();
+        }
+
+        if(!application.getJob().getId().equals(job.getId())){
             throw new ForbiddenException();
         }
 
         application.setStatus(request.status());
         application.setHrNotes(request.hrNotes());
-
         if(application.getStatus() == ApplicationStatus.ACCEPTED){
             job.setPublicationStatus(PublicationStatus.CLOSED);
         }
         
-        logService.log(
+       logService.log(
             username,
             humanResource.getRole().name(),
             "REVIEW_APPLICATION",
-            "Reviewed Application." 
+            "Meninjau aplikasi ID: " + application.getId() + " untuk job ID: " + job.getId() + 
+            ", status diubah menjadi: " + request.status()
         );
+
+    }
+
+    public void deleteApplication(String username, Long applicationId){
+        JobSeeker jobSeeker = jobSeekerRepository.findByUsername(username)
+            .orElseThrow(UserNotFoundException::new);
+        
+        Application application = applicationRepository.findById(applicationId)
+            .orElseThrow(ApplicationNotFoundException::new);
+        
+        if(!jobSeeker.getId().equals(application.getJobSeeker().getId())){
+            throw new ForbiddenException();
+        }
+
+        applicationRepository.delete(application);
+
+       logService.log(
+            username,
+            jobSeeker.getRole().name(),
+            "DELETE_APPLICATION",
+            "Menghapus aplikasi ID: " + application.getId() + " untuk job ID: " + application.getJob().getId()
+        );
+    }
+
+    private ApplicationResponse mapToResponse(Application application){ 
+        return new ApplicationResponse(
+            application.getId(),
+            application.getJob().getId(),
+            application.getJobSeeker().getId(),
+            application.getJobSeeker().getCvDocumentPath(),
+            application.getCoverLetter(),
+            application.getAppliedAt()
+        );
+    }
+
+    private List<ApplicationResponse> mapToList(List<Application> applications){
+    return applications.stream()
+            .map(this::mapToResponse)
+            .toList();
     }
 }

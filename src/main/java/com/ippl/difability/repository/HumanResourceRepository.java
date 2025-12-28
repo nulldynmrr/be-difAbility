@@ -1,5 +1,6 @@
 package com.ippl.difability.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +11,5 @@ import com.ippl.difability.entity.HumanResource;
 @Repository
 public interface HumanResourceRepository extends JpaRepository<HumanResource, Long>{
     Optional<HumanResource> findByUsername(String username);
+    List<HumanResource> findAllByCompanyId(Long companyId);
 }

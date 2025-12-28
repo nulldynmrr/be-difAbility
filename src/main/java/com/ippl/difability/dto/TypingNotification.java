@@ -15,4 +15,3 @@ public class TypingNotification {
     private String userName;
     private boolean isTyping;
 }
-

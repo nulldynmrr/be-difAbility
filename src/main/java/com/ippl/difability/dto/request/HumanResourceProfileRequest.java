@@ -7,6 +7,9 @@ public record HumanResourceProfileRequest(
     @Size(max = 50)
     String fullName,
 
-    @Pattern(regexp = "^[0-9]{8,15}$")
-    String contact
+    @Size(max = 15)
+    @Pattern(regexp = "^[0-9]$")
+    String contact,
+
+    String ppImagePath
 ){}

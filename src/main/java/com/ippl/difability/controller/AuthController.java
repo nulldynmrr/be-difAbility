@@ -1,7 +1,10 @@
 package com.ippl.difability.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ippl.difability.dto.request.AdminLoginRequest;
 import com.ippl.difability.dto.request.GeneralLoginRequest;
 import com.ippl.difability.dto.request.RegistrationRequest;
+import com.ippl.difability.dto.response.AuthMeResponse;
 import com.ippl.difability.dto.response.AuthResponse;
 import com.ippl.difability.security.CookieUtil;
 import com.ippl.difability.service.AuthService;
@@ -24,6 +28,13 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
     private final AuthService authService;
     private static final long SECONDS = 86400;
+
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<AuthMeResponse> authMe(Authentication auth){
+        AuthMeResponse me = authService.authMe(auth.getName());
+        return ResponseEntity.ok(me);
+    }
 
     @PostMapping("/registration")
     public ResponseEntity<AuthResponse> register(
@@ -53,8 +64,8 @@ public class AuthController {
     }
 
     @DeleteMapping("/session")
-    public ResponseEntity<Void> logout(HttpServletResponse response) {
+    public ResponseEntity<Void> logout(HttpServletResponse response){
         CookieUtil.setJwtCookie(response, "", 0);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

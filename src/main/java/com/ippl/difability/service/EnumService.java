@@ -1,15 +1,10 @@
 package com.ippl.difability.service;
 
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 
-import com.ippl.difability.enums.ApplicationStatus;
-import com.ippl.difability.enums.DisabilityType;
-import com.ippl.difability.enums.EducationLevel;
-import com.ippl.difability.enums.IndustryType;
-import com.ippl.difability.enums.PublicationStatus;
-import com.ippl.difability.enums.JobType;
+import org.springframework.stereotype.Service;
+
+import com.ippl.difability.enums.*;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
