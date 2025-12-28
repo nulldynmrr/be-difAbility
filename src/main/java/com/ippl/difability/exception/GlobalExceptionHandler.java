@@ -104,7 +104,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
         UserNotFoundException.class,
         JobNotFoundException.class,
-        ApplicationNotFoundException.class     
+        ApplicationNotFoundException.class,
+        ResourceNotFoundException.class
     })
     public ResponseEntity<ErrorResponse> handleNotFound(
             RuntimeException exception, HttpServletRequest request){

@@ -19,7 +19,7 @@ public record JobRequest(
     @Size(max = 500)
     String jobDescription,
 
-    @Digits(integer = 12, fraction = 2)
+    // @Digits(integer = 12, fraction = 2)
     BigDecimal salary,
 
     EducationLevel minimumEducation,

@@ -19,7 +19,7 @@ public class Company extends User {
     @Column(name = "company_name", length = 50)
     private String companyName;
 
-    @Column(name = "company_description", length = 500)
+    @Column(name = "company_description", length = 1000)
     private String companyDescription;
 
     @Column(name = "address", length = 150)

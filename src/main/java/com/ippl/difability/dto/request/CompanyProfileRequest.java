@@ -1,10 +1,8 @@
 package com.ippl.difability.dto.request;
 
-import org.hibernate.validator.constraints.URL;
-
 import com.ippl.difability.enums.IndustryType;
-
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 public record CompanyProfileRequest(
     @Size(min = 3, max = 50)
