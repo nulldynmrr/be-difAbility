@@ -72,67 +72,6 @@ public class JobService {
 
     }
 
-    // public List<JobResponse> getJobs(String username){
-    //     User user = userRepository.findByUsername(username)
-    //         .orElseThrow(UserNotFoundException::new);
-        
-    //     Role role = user.getRole();
-    //     List<Job> jobs = switch(role){
-    //         case ADMIN ->
-    //             jobRepository.findAllByOrderByCreatedAtDesc();
-    //         case JOB_SEEKER ->{
-    //             JobSeeker jobSeeker = (JobSeeker) user;
-
-    //             yield jobRepository.findByPublicationStatusAndCompatibleDisabilitiesContaining(
-    //                 PublicationStatus.OPEN,
-    //                 jobSeeker.getDisabilityType()
-    //             );
-    //         }
-    //         case COMPANY, HUMAN_RESOURCE ->
-    //             jobRepository.findByCompanyUsername(username);
-    //         default ->
-    //             throw new ForbiddenException();
-    //     };
-
-    //     return mapToList(jobs);
-    // }
-
-//     public List<JobResponse> getJobs(Authentication auth){
-//     List<Job> jobs;
-
-//     if(auth == null){
-//         jobs = jobRepository.findByPublicationStatus(PublicationStatus.OPEN);
-//         return mapToList(jobs);
-//     }
-
-//     User user = userRepository.findByUsername(auth.getName())
-//         .orElseThrow(UserNotFoundException::new);
-    
-//     Role role = user.getRole();
-
-//     if(role == Role.ADMIN){
-//         jobs = jobRepository.findAllByOrderByCreatedAtDesc();
-//     } else if(role == Role.JOB_SEEKER){
-//         JobSeeker jobSeeker = (JobSeeker) user;
-
-//         if(jobSeeker.getDisabilityType() == null){
-//             jobs = jobRepository.findByPublicationStatus(PublicationStatus.OPEN);
-//         } else {
-//            jobs = jobRepository.findByPublicationStatusAndCompatibleDisabilities(
-//     PublicationStatus.OPEN,
-//     jobSeeker.getDisabilityType()
-// );
-
-//         }
-//     } else if(role == Role.COMPANY || role == Role.HUMAN_RESOURCE){
-//         jobs = jobRepository.findByCompanyUsername(auth.getName());
-//     } else {
-//         throw new ForbiddenException();
-//     }
-
-//     return mapToList(jobs);
-// }
-
 public List<JobResponse> getJobs(Authentication auth) {
     List<Job> jobs;
 

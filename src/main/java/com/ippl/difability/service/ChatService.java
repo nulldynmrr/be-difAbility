@@ -35,7 +35,6 @@ public class ChatService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Long currentUserId = user.getId();
 
-        // Cek apakah conversation sudah ada
         Conversation conversation = conversationRepository
                 .findByJobIdAndJobSeekerId(request.getJobId(), request.getJobSeekerId())
                 .orElseGet(() -> {
@@ -58,7 +57,6 @@ public class ChatService {
                     return conversationRepository.save(newConv);
                 });
 
-        // Kirim initial message jika ada
         if (request.getInitialMessage() != null && !request.getInitialMessage().trim().isEmpty()) {
             SendMessageRequest messageRequest = new SendMessageRequest();
             messageRequest.setConversationId(conversation.getId());
@@ -86,12 +84,11 @@ public class ChatService {
         Conversation conversation = conversationRepository.findById(request.getConversationId())
                 .orElseThrow(() -> new ResourceNotFoundException("Conversation", "id", request.getConversationId()));
 
-        // Validasi apakah user adalah participant
         if (!isParticipant(conversation, senderId)) {
             throw new IllegalArgumentException("You are not a participant in this conversation");
         }
 
-        // Buat message baru
+        // buat new message 
         Message message = new Message();
         message.setConversation(conversation);
         message.setSender(user);
@@ -101,7 +98,7 @@ public class ChatService {
 
         message = messageRepository.save(message);
 
-        // Update last message timestamp di conversation
+        // Update last message
         conversation.setLastMessage(LocalDateTime.now());
         conversationRepository.save(conversation);
 
@@ -125,10 +122,8 @@ public class ChatService {
             throw new IllegalArgumentException("You are not a participant in this conversation");
         }
 
-        // Mark messages sebagai sudah dibaca
         messageRepository.markMessagesAsRead(conversationId, currentUserId);
 
-        // Ambil semua messages
         List<Message> messages = messageRepository.findByConversationIdOrderByCreatedAtAsc(conversationId);
 
         return messages.stream()
@@ -169,7 +164,6 @@ public class ChatService {
         return mapToConversationResponse(conversation, currentUserId);
     }
 
-    // Helper method untuk cek apakah user adalah participant
     private boolean isParticipant(Conversation conversation, Long userId) {
         if (userId == null) {
             return false;
@@ -185,7 +179,6 @@ public class ChatService {
         return isJobSeeker || isCompany || isHrUser;
     }
 
-    // Mapping ke MessageResponse
     private MessageResponse mapToMessageResponse(Message message) {
         if (message == null) {
             return null;
@@ -204,7 +197,6 @@ public class ChatService {
         );
     }
 
-    // Mapping ke ConversationResponse dengan messages
     private ConversationResponse mapToConversationResponse(Conversation conversation, Long currentUserId) {
         Message latestMessage = messageRepository.findLatestMessageByConversationId(conversation.getId());
         Long unreadCount = messageRepository.countUnreadMessages(conversation.getId(), currentUserId);
@@ -229,7 +221,6 @@ public class ChatService {
         );
     }
 
-    // Mapping ke ConversationResponse tanpa messages (untuk list)
     private ConversationResponse mapToConversationListResponse(Conversation conversation, Long currentUserId) {
         Message latestMessage = messageRepository.findLatestMessageByConversationId(conversation.getId());
         Long unreadCount = messageRepository.countUnreadMessages(conversation.getId(), currentUserId);
@@ -247,7 +238,7 @@ public class ChatService {
                 conversation.getLastMessage(),
                 latestMessage != null ? latestMessage.getMessageContent() : null,
                 unreadCount != null ? unreadCount : 0L,
-                null // Tidak include messages untuk list
+                null 
         );
     }
 }
