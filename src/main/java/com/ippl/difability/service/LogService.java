@@ -27,8 +27,6 @@ public class LogService {
         logRepository.save(log);
     }
 
-
-
     public List<LogResponse> getLogs(){
         return mapToList(
             logRepository.findAllByOrderByCreatedAtDesc()
@@ -56,5 +54,6 @@ public class LogService {
             log.getCreatedAt()
         );
     }
+
 }
  

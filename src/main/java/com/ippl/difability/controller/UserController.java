@@ -38,13 +38,4 @@ public class UserController {
         userService.deleteUser(auth.getName(), userId);
         return ResponseEntity.noContent().build();
     }
-
-    // @GetMapping("/users/{userId}")
-    // @PreAuthorize("isAuthenticated()")
-    // public ResponseEntity<UserResponse> getUser(
-    //         @PathVariable Long userId,
-    //         Authentication auth){
-    //     UserResponse user = userService.getUser(auth.getName(), userId);
-    //     return ResponseEntity.ok(user);
-    // }
 }

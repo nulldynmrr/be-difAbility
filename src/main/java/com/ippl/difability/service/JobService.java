@@ -128,7 +128,6 @@ public List<JobResponse> getJobs(Authentication auth) {
         job.setMinimumYearsExperience(request.minimumYearsExperience());
         job.setCompatibleDisabilities(request.compatibleDisabilities());
         job.setRegistrationDeadline(request.registrationDeadline());
-        job.setJobType(request.jobType());
         jobRepository.save(job);
 
         logService.log(
